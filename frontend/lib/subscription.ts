@@ -43,45 +43,40 @@ export interface SubscriptionStatus {
   features: PlanFeatures;
 }
 
-const LITE: PlanFeatures = {
+// Plan máximo — todas las funciones desbloqueadas
+const ALL_FEATURES: PlanFeatures = {
   accounting: true, chartOfAccounts: true, invoicing: true, clients: true,
-  payments: true, suppliers: true, bills: true, inventory: false,
-  banks: true, reconciliation: false, treasury: false, payroll: false,
-  assets: false, satXml: true, satSync: false, diot: false, taxCalc: false,
-  electronicAccounting: false, fiscalClose: false, multiCurrency: false,
-  budgets: false, segments: false, audit: false, ai: false, maxCompanies: 1,
+  payments: true, suppliers: true, bills: true, inventory: true,
+  banks: true, reconciliation: true, treasury: true, payroll: true,
+  assets: true, satXml: true, satSync: true, diot: true, taxCalc: true,
+  electronicAccounting: true, fiscalClose: true, multiCurrency: true,
+  budgets: true, segments: true, audit: true, ai: true, maxCompanies: 9999,
 };
 
 export const PLAN_FEATURES: Record<string, PlanFeatures> = {
-  lite: LITE,
-  pro: { ...LITE, inventory: true, reconciliation: true, treasury: true, payroll: true, assets: true, diot: true, taxCalc: true, fiscalClose: true, multiCurrency: true, audit: true, maxCompanies: 3 },
-  business: { ...LITE, inventory: true, reconciliation: true, treasury: true, payroll: true, assets: true, diot: true, taxCalc: true, fiscalClose: true, multiCurrency: true, audit: true, satSync: true, electronicAccounting: true, budgets: true, segments: true, ai: true, maxCompanies: 10 },
-  despacho: { ...LITE, inventory: true, reconciliation: true, treasury: true, payroll: true, assets: true, diot: true, taxCalc: true, fiscalClose: true, multiCurrency: true, audit: true, satSync: true, electronicAccounting: true, budgets: true, segments: true, ai: true, maxCompanies: 50 },
+  lite: ALL_FEATURES,
+  pro: ALL_FEATURES,
+  business: ALL_FEATURES,
+  despacho: ALL_FEATURES,
 };
 
 export const PLAN_LABELS: Record<string, string> = {
-  lite: 'Lite',
-  pro: 'Pro',
-  business: 'Business',
-  despacho: 'Despacho',
+  despacho: 'Despacho Elite',
 };
 
 export const UPGRADE_PLAN: Record<string, string> = {
-  lite: 'pro',
-  pro: 'business',
-  business: 'despacho',
   despacho: 'despacho',
 };
 
-// Fallback cuando no hay suscripción cargada aún
+// Default — plan más completo, todo activo, sin restricciones
 export const DEFAULT_STATUS: SubscriptionStatus = {
-  planId: 'lite',
-  planName: 'Lite (Trial)',
-  status: 'TRIAL',
+  planId: 'despacho',
+  planName: 'Despacho Elite',
+  status: 'ACTIVE',
   stampingUsed: 0,
-  stampingLimit: 15,
+  stampingLimit: 999999,
   tokenUsed: 0,
-  tokenLimit: 50_000,
+  tokenLimit: 9_999_999,
   endDate: null,
-  features: LITE,
+  features: ALL_FEATURES,
 };

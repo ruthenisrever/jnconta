@@ -84,61 +84,10 @@ export class StampingService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    this.logger.log('🚀 Iniciando autodiagnóstico de timbrado real...');
-    try {
-      const cerPath = 'c:/Users/ruthe/Downloads/SAT/00001000000510941449.cer';
-      const keyPath = 'c:/Users/ruthe/Downloads/SAT/CSD_RUTHENI_NALJ890809C15_20220118_115550.key';
-      
-      if (fs.existsSync(cerPath) && fs.existsSync(keyPath)) {
-        this.logger.log('✅ Sellos CSD detectados en Downloads. Activando producción...');
-        const cerBuf = fs.readFileSync(cerPath);
-        const x509 = new crypto.X509Certificate(cerBuf);
-        const serial = BigInt('0x' + x509.serialNumber.replace(/\s/g, '')).toString();
-
-        const company = await (this.prisma as any).company.findFirst({
-          where: { rfc: 'NALJ890809C15' }
-        });
-
-        if (company) {
-          // Desactivar certificados FIEL previos
-          await (this.prisma as any).digitalCertificate.updateMany({
-            where: { companyId: company.id },
-            data: { isActive: false }
-          });
-
-          // Activar CSD Real
-          await (this.prisma as any).digitalCertificate.upsert({
-            where: { serialNumber: serial },
-            update: { isActive: true, keyFile: fs.readFileSync(keyPath).toString('base64'), cerFile: cerBuf.toString('base64') },
-            create: {
-              companyId: company.id,
-              serialNumber: serial,
-              cerFile: cerBuf.toString('base64'),
-              keyFile: fs.readFileSync(keyPath).toString('base64'),
-              password: 'Ingeniero66',
-              expiryDate: new Date(x509.validTo),
-              isActive: true
-            }
-          });
-
-          // Forzar a MODO PRODUCCIÓN
-          await (this.prisma as any).company.update({
-            where: { id: company.id },
-            data: {
-              pacUsername: 'rutheni.qm@gmail.com',
-              pacPassword: 'Ingeniero66',
-              pacTestMode: false,
-              pacUrl: 'https://facturacion.finkok.com/servicios/soap/stamp.wsdl'
-            }
-          });
-          this.logger.log(`🎊 SISTEMA REPARADO: RFC ${company.rfc} ahora está en PRODUCCIÓN REAL.`);
-        }
-      } else {
-        this.logger.warn('⚠️ No se encontraron sellos CSD en la ruta esperada de Downloads.');
-      }
-    } catch (e) {
-      this.logger.error(`❌ Fallo en autodiagnóstico: ${e.message}`);
-    }
+    this.logger.log('🚀 Verificando configuración de timbrado...');
+    // Los certificados CSD se cargan desde la base de datos.
+    // Usa el panel de Configuración → Certificados para subir tu .cer y .key.
+    this.logger.log('✅ Servicio de timbrado listo. Carga tu CSD desde el panel.');
   }
 
   // ── Public API ──────────────────────────────────────────────────────────────

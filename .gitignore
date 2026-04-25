@@ -1,9 +1,57 @@
+# ── Dependencias ──────────────────────────────────────
 node_modules/
 dist/
+build/
+.swc/
+
+# ── Next.js ────────────────────────────────────────────
 .next/
+out/
+
+# ── Entorno — NUNCA subir a git ───────────────────────
 .env
+.env.local
+.env.production
+.env.development
+.env.*.local
+frontend/.env.local
+api/.env
+
+# ── Logs ──────────────────────────────────────────────
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── OS ────────────────────────────────────────────────
 .DS_Store
-C:\Users\ruthe\.gemini\antigravity\scratch\jnconta\api\node_modules
-C:\Users\ruthe\.gemini\antigravity\scratch\jnconta\frontend\node_modules
-C:\Users\ruthe\.gemini\antigravity\scratch\jnconta\frontend\.next
+Thumbs.db
+desktop.ini
+
+# ── Certificados SAT (NUNCA subir claves privadas) ────
+*.key
+*.cer
+*.pfx
+*.p12
+SAT 2/
+
+# ── Bridge / scripts internos ─────────────────────────
+.bridge_*.json
+.bridge_log.txt
+.agents/
+*.bat.bak
+
+# ── Coverage ──────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ── TypeScript build info ─────────────────────────────
+*.tsbuildinfo
+
+# ── ZIP / distribuciones ──────────────────────────────
+*.zip
+temp_deploy/
+
+# ── Certbot (SSL local) ───────────────────────────────
+certbot/conf/
+certbot/www/
