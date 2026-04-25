@@ -1,0 +1,9 @@
+{
+  "id": "start-api",
+  "command": "Start-Process powershell -ArgumentList '-NoExit', '-Command', 'cd C:\\Users\\ruthe\\.gemini\\antigravity\\scratch\\jnconta\\api; npm run start:dev' -WindowStyle Normal",
+  "stdout": "",
+  "stderr": "",
+  "error": null,
+  "exitCode": 0,
+  "timestamp": "2026-04-07T19:31:03.068Z"
+}

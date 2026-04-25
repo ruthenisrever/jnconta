@@ -1,0 +1,9 @@
+{
+  "id": "run-reliable-test-v3",
+  "command": "npx -y tsx reliable_test.ts",
+  "stdout": "🚀 DEPLOYING RELIABILITY TEST SUITE...\n✅ [SETUP] Created Testing Company: 145c3e64-f7dc-49eb-9e76-8f283a7fc879\n\n--- 🏗️ TESTING: FIXED ASSETS ---\n✅ Asset created: TEST COMPUTER\nℹ️ Calculated monthly dep: 3333\n✅ [PASS] Fixed Asset Depreciation verified. New Net Value: 116667\n\n--- 💵 TESTING: MULTI-CURRENCY ---\n✅ Posted $100 USD @ 17.00 MXN\n✅ [PASS] Multi-currency suggestion correct: +100 MXN\n\n--- 📦 TESTING: INVENTORY/KARDEX ---\n✅ Recorded ENTRADA: 100 units\n✅ Recorded SALIDA: 30 units\n✅ [PASS] Inventory stock verified: 70 units\n\n--- 📡 TESTING: SAT SYNC ---\n✅ [PASS] SAT Sync persistence verified: 5 documents created.\n\n✨ ALL BACKEND RELIABILITY TESTS PASSED SUCCESSFULLY! ✨\n\n⚠️ NOTE: Test data for company 145c3e64-f7dc-49eb-9e76-8f283a7fc879 remains in the DB for UI verification.",
+  "stderr": "",
+  "error": null,
+  "exitCode": 0,
+  "timestamp": "2026-04-08T00:59:15.063Z"
+}

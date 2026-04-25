@@ -1,0 +1,9 @@
+{
+  "id": "seed-templates",
+  "command": "npx -y tsx seed_templates.ts",
+  "stdout": "✅ Seeded Gasto General (Simplificado) and Venta de Servicios",
+  "stderr": "",
+  "error": null,
+  "exitCode": 0,
+  "timestamp": "2026-04-08T01:43:11.823Z"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "fix-prisma-types-phase3",
+  "command": "$apiPid = (netstat -ano | findstr :3005 | Select-Object -First 1).Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries)[-1]; if ($apiPid -and $apiPid -ne '0') { Stop-Process -Id $apiPid -Force }; Start-Sleep 1; cd api; npx prisma generate",
+  "stdout": "Environment variables loaded from .env\nPrisma schema loaded from prisma\\schema.prisma\n\n✔ Generated Prisma Client (v5.22.0) to .\\node_modules\\@prisma\\client in 372ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\nTip: Want to react to database changes in your app as they happen? Discover how with Pulse: https://pris.ly/tip-1-pulse",
+  "stderr": "",
+  "error": null,
+  "exitCode": 0,
+  "timestamp": "2026-04-07T20:22:55.901Z"
+}

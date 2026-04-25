@@ -1,0 +1,9 @@
+{
+  "id": "safe-launch-v1",
+  "command": "$ports = @(3005, 3010, 9000); foreach ($port in $ports) { $pids = (netstat -ano | findstr \":$port\"); foreach ($line in $pids) { $pid_val = $line.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries)[-1]; if ($pid_val -ne '0') { Stop-Process -Id $pid_val -Force -ErrorAction SilentlyContinue } } }; Start-Sleep 1; cd api; Start-Process npm -ArgumentList 'run start:dev' -WindowStyle Minimized; cd ../frontend; Start-Process npm -ArgumentList 'run dev' -WindowStyle Minimized",
+  "stdout": "",
+  "stderr": "",
+  "error": null,
+  "exitCode": 0,
+  "timestamp": "2026-04-07T19:48:07.490Z"
+}

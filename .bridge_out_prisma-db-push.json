@@ -1,0 +1,9 @@
+{
+  "id": "prisma-db-push",
+  "command": "cd api; npx prisma db push",
+  "stdout": "Environment variables loaded from .env\nPrisma schema loaded from prisma\\schema.prisma\nDatasource \"db\": PostgreSQL database \"jnconta_db\", schema \"public\" at \"localhost:5433\"\n\nYour database is now in sync with your Prisma schema. Done in 234ms\n\nRunning generate... (Use --skip-generate to skip the generators)\n\u001b[2K\u001b[1A\u001b[2K\u001b[GRunning generate... - Prisma Client\n\u001b[2K\u001b[1A\u001b[2K\u001b[GEPERM: operation not permitted, rename \n'C:\\Users\\ruthe\\.gemini\\antigravity\\scratch\\jnconta\\api\\node_modules\\.prisma\\cli\nent\\query_engine-windows.dll.node.tmp27760' -> \n'C:\\Users\\ruthe\\.gemini\\antigravity\\scratch\\jnconta\\api\\node_modules\\.prisma\\cli\nent\\query_engine-windows.dll.node'",
+  "stderr": "",
+  "error": null,
+  "exitCode": 0,
+  "timestamp": "2026-04-07T19:39:27.494Z"
+}

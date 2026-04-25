@@ -1,0 +1,153 @@
+[2026-04-07T19:27:19.094Z] 🌉 JnConta Execution Bridge ACTIVO
+[2026-04-07T19:27:19.100Z] 📂 Carpeta raíz: C:\Users\ruthe\.gemini\antigravity\scratch\jnconta
+[2026-04-07T19:27:19.101Z] ⏳ Esperando comandos en .bridge_cmd.json ...
+
+[2026-04-07T19:27:43.906Z] 🚀 Ejecutando [test-001]: echo 'Bridge OK' && node --version && echo '---' && dir /b
+[2026-04-07T19:27:44.588Z] ✅ Completado [test-001] | exit: 1
+[2026-04-07T19:27:44.589Z] ⚠️  stderr: En l�nea: 1 Car�cter: 18
++ echo 'Bridge OK' && node --version && echo '---' && dir /b
++                  ~~
+El token '&&' no es un separador de instrucciones v�lido en esta versi�n.
+En l�nea: 1 Ca
+[2026-04-07T19:28:03.901Z] 🚀 Ejecutando [test-002]: node --version; npm --version; Write-Host 'Bridge OK - PowerShell activo'
+[2026-04-07T19:28:05.459Z] ✅ Completado [test-002] | exit: 0
+[2026-04-07T19:28:19.210Z] 🚀 Ejecutando [api-tests]: cd api; npx jest --forceExit --passWithNoTests 2>&1
+[2026-04-07T19:28:32.950Z] ✅ Completado [api-tests] | exit: 1
+[2026-04-07T19:28:32.951Z] ⚠️  stderr: npx : PASS src/inventory.controller.spec.ts
+En l�nea: 1 Car�cter: 9
++ cd api; npx jest --forceExit --passWithNoTests 2>&1
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo  
+[2026-04-07T19:28:44.115Z] 🚀 Ejecutando [frontend-build]: cd frontend; npx tsc --noEmit 2>&1 | Select-Object -First 50
+[2026-04-07T19:29:00.164Z] ✅ Completado [frontend-build] | exit: 0
+[2026-04-07T19:29:37.266Z] 🌉 JnConta Execution Bridge ACTIVO
+[2026-04-07T19:29:37.272Z] 📂 Carpeta raíz: C:\Users\ruthe\.gemini\antigravity\scratch\jnconta
+[2026-04-07T19:29:37.272Z] ⏳ Esperando comandos en .bridge_cmd.json ...
+
+[2026-04-07T19:30:06.735Z] 🚀 Ejecutando [list-outputs]: Get-ChildItem -Name '.bridge_out*'
+[2026-04-07T19:30:07.264Z] ✅ Completado [list-outputs] | exit: 0
+[2026-04-07T19:30:31.717Z] 🚀 Ejecutando [check-ports]: netstat -ano | Select-String ':3005|:9000|:5433' | Select-Object -First 20
+[2026-04-07T19:30:32.198Z] ✅ Completado [check-ports] | exit: 0
+[2026-04-07T19:30:46.945Z] 🚀 Ejecutando [docker-status]: docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+[2026-04-07T19:30:47.358Z] ✅ Completado [docker-status] | exit: 0
+[2026-04-07T19:31:02.571Z] 🚀 Ejecutando [start-api]: Start-Process powershell -ArgumentList '-NoExit', '-Command', 'cd C:\Users\ruthe\.gemini\antigravity\scratch\jnconta\api; npm run start:dev' -WindowStyle Normal
+[2026-04-07T19:31:03.069Z] ✅ Completado [start-api] | exit: 0
+[2026-04-07T19:31:18.396Z] 🚀 Ejecutando [start-frontend]: Start-Process powershell -ArgumentList '-NoExit', '-Command', 'cd C:\Users\ruthe\.gemini\antigravity\scratch\jnconta\frontend; npm run dev' -WindowStyle Normal; Start-Sleep 15; netstat -ano | Select-String ':3005|:9000' | Select-Object -First 10
+[2026-04-07T19:31:33.929Z] ✅ Completado [start-frontend] | exit: 0
+[2026-04-07T19:31:38.517Z] 🚀 Ejecutando [check-ports-2]: netstat -ano | Select-String ':3005|:9000' | Select-Object -First 10
+[2026-04-07T19:31:39.083Z] ✅ Completado [check-ports-2] | exit: 0
+[2026-04-07T19:32:58.386Z] 🚀 Ejecutando [final-status]: netstat -ano | Select-String ':3005|:9000' | Select-Object -First 10
+[2026-04-07T19:32:58.391Z] ✅ Completado [final-status] | exit: ENOENT
+[2026-04-07T19:33:17.705Z] 🚀 Ejecutando [final-status-v2]: netstat -ano | Select-String ':3005|:9000' | Select-Object -First 10
+[2026-04-07T19:33:18.099Z] ✅ Completado [final-status-v2] | exit: 0
+[2026-04-07T19:39:04.509Z] 🚀 Ejecutando [prisma-migrate-phase1]: cd api; npx prisma migrate dev --name add_efos_and_risk_status
+[2026-04-07T19:39:09.569Z] ✅ Completado [prisma-migrate-phase1] | exit: 1
+[2026-04-07T19:39:09.570Z] ⚠️  stderr: Error: Prisma Migrate has detected that the environment is non-interactive, which is not supported.
+
+`prisma migrate dev` is an interactive command designed to create new migrations and evolve the dat
+[2026-04-07T19:39:22.804Z] 🚀 Ejecutando [prisma-db-push]: cd api; npx prisma db push
+[2026-04-07T19:39:27.506Z] ✅ Completado [prisma-db-push] | exit: 0
+[2026-04-07T19:40:48.944Z] 🚀 Ejecutando [fix-prisma-types]: taskkill /F /IM node.exe; Start-Sleep 2; cd api; npx prisma generate
+[2026-04-07T19:41:17.105Z] 🌉 JnConta Execution Bridge ACTIVO
+[2026-04-07T19:41:17.111Z] 📂 Carpeta raíz: C:\Users\ruthe\.gemini\antigravity\scratch\jnconta
+[2026-04-07T19:41:17.112Z] ⏳ Esperando comandos en .bridge_cmd.json ...
+
+[2026-04-07T19:41:33.902Z] 🚀 Ejecutando [regenerate-prisma-clean]: cd api; npx prisma generate
+[2026-04-07T19:41:38.320Z] ✅ Completado [regenerate-prisma-clean] | exit: 0
+[2026-04-07T19:41:38.321Z] ⚠️  stderr: ┌─────────────────────────────────────────────────────────┐
+│  Update available 5.22.0 -> 7.7.0                       │
+│                                                         │
+│  This is a major u
+[2026-04-07T19:42:37.749Z] 🚀 Ejecutando [launch-jnconta-parity-v1]: Stop-Process -Name node -ErrorAction SilentlyContinue; Start-Sleep 1; cd api; Start-Process npm -ArgumentList 'run start:dev' -WindowStyle Minimized; cd ../frontend; Start-Process npm -ArgumentList 'run dev' -WindowStyle Minimized
+[2026-04-07T19:47:49.852Z] 🌉 JnConta Execution Bridge ACTIVO
+[2026-04-07T19:47:49.858Z] 📂 Carpeta raíz: C:\Users\ruthe\.gemini\antigravity\scratch\jnconta
+[2026-04-07T19:47:49.859Z] ⏳ Esperando comandos en .bridge_cmd.json ...
+
+[2026-04-07T19:48:05.672Z] 🚀 Ejecutando [safe-launch-v1]: $ports = @(3005, 3010, 9000); foreach ($port in $ports) { $pids = (netstat -ano | findstr ":$port"); foreach ($line in $pids) { $pid_val = $line.Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries)[-1]; if ($pid_val -ne '0') { Stop-Process -Id $pid_val -Force -ErrorAction SilentlyContinue } } }; Start-Sleep 1; cd api; Start-Process npm -ArgumentList 'run start:dev' -WindowStyle Minimized; cd ../frontend; Start-Process npm -ArgumentList 'run dev' -WindowStyle Minimized
+[2026-04-07T19:48:07.492Z] ✅ Completado [safe-launch-v1] | exit: 0
+[2026-04-07T19:48:19.792Z] 🚀 Ejecutando [final-status-v3]: netstat -ano | Select-String ':3005|:3010'
+[2026-04-07T19:48:20.440Z] ✅ Completado [final-status-v3] | exit: 0
+[2026-04-07T19:56:52.176Z] 🚀 Ejecutando [prisma-db-push-phase2]: cd api; npx prisma db push
+[2026-04-07T19:56:56.579Z] ✅ Completado [prisma-db-push-phase2] | exit: 0
+[2026-04-07T19:57:05.779Z] 🚀 Ejecutando [fix-prisma-types-phase2]: $apiPid = (netstat -ano | findstr :3005 | Select-Object -First 1).Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries)[-1]; if ($apiPid -and $apiPid -ne '0') { Stop-Process -Id $apiPid -Force }; Start-Sleep 1; cd api; npx prisma generate
+[2026-04-07T19:57:11.562Z] ✅ Completado [fix-prisma-types-phase2] | exit: 0
+[2026-04-07T20:22:36.258Z] 🚀 Ejecutando [prisma-db-push-phase3]: cd api; npx prisma db push
+[2026-04-07T20:22:40.589Z] ✅ Completado [prisma-db-push-phase3] | exit: 0
+[2026-04-07T20:22:50.280Z] 🚀 Ejecutando [fix-prisma-types-phase3]: $apiPid = (netstat -ano | findstr :3005 | Select-Object -First 1).Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries)[-1]; if ($apiPid -and $apiPid -ne '0') { Stop-Process -Id $apiPid -Force }; Start-Sleep 1; cd api; npx prisma generate
+[2026-04-07T20:22:55.903Z] ✅ Completado [fix-prisma-types-phase3] | exit: 0
+[2026-04-07T20:47:10.581Z] 🚀 Ejecutando [fix-prisma-types-phase4]: $apiPid = (netstat -ano | findstr :3005 | Select-Object -First 1).Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries)[-1]; if ($apiPid -and $apiPid -ne '0') { Stop-Process -Id $apiPid -Force }; Start-Sleep 1; cd api; npx prisma generate
+[2026-04-07T20:47:15.811Z] ✅ Completado [fix-prisma-types-phase4] | exit: 0
+[2026-04-07T21:07:31.885Z] 🚀 Ejecutando [fix-prisma-types-phase7]: $apiPid = (netstat -ano | findstr :3005 | Select-Object -First 1).Split(' ', [System.StringSplitOptions]::RemoveEmptyEntries)[-1]; if ($apiPid -and $apiPid -ne '0') { Stop-Process -Id $apiPid -Force }; Start-Sleep 1; cd api; npx prisma generate
+[2026-04-07T21:07:35.991Z] ✅ Completado [fix-prisma-types-phase7] | exit: 1
+[2026-04-07T21:07:35.992Z] ⚠️  stderr: Error: Prisma schema validation - (get-dmmf wasm)
+Error code: P1012
+[1;91merror[0m: [1mThe model "Employee" cannot be defined because a model with that name already exists.[0m
+  [1;94m-->[0m  [
+[2026-04-07T21:08:38.572Z] 🚀 Ejecutando [prisma-generate-nomina-v7]: cd api; npx prisma generate
+[2026-04-07T21:08:41.723Z] ✅ Completado [prisma-generate-nomina-v7] | exit: 1
+[2026-04-07T21:08:41.723Z] ⚠️  stderr: Error: Prisma schema validation - (get-dmmf wasm)
+Error code: P1012
+[1;91merror[0m: [1mThe model "Employee" cannot be defined because a model with that name already exists.[0m
+  [1;94m-->[0m  [
+[2026-04-07T21:09:30.597Z] 🚀 Ejecutando [prisma-generate-final-v7]: cd api; npx prisma generate
+[2026-04-07T21:09:33.150Z] ✅ Completado [prisma-generate-final-v7] | exit: 1
+[2026-04-07T21:09:33.151Z] ⚠️  stderr: Error: Prisma schema validation - (get-dmmf wasm)
+Error code: P1012
+[1;91merror[0m: [1mError validating field `journal` in model `PayrollReceipt`: The relation field `journal` on model `PayrollRece
+[2026-04-07T21:16:41.095Z] 🚀 Ejecutando [restart-api-nomina-v7]: cd api; npm run dev
+[2026-04-07T21:16:42.949Z] ✅ Completado [restart-api-nomina-v7] | exit: 1
+[2026-04-07T21:16:42.951Z] ⚠️  stderr: npm ERR! Missing script: "dev"
+npm ERR! 
+npm ERR! To see a list of scripts, run:
+npm ERR!   npm run
+
+npm ERR! A complete log of this run can be found in: C:\Users\ruthe\AppData\Local\npm-cache\_logs\2
+[2026-04-07T21:28:27.088Z] 🚀 Ejecutando [start-api-clean-v7]: cd api; npm run start:dev
+[2026-04-07T21:30:27.178Z] ✅ Completado [start-api-clean-v7] | exit: null
+[2026-04-07T21:37:19.681Z] 🚀 Ejecutando [full-sync-api-v7]: cd api; npx prisma generate; npm run start:dev
+[2026-04-07T21:39:19.748Z] ✅ Completado [full-sync-api-v7] | exit: null
+[2026-04-07T21:39:19.751Z] ⚠️  stderr: Error: Prisma schema validation - (get-dmmf wasm)
+Error code: P1012
+[1;91merror[0m: [1mError validating field `journal` in model `PayrollReceipt`: The relation field `journal` on model `PayrollRece
+[2026-04-08T00:42:30.624Z] 🌉 JnConta Execution Bridge ACTIVO
+[2026-04-08T00:42:30.630Z] 📂 Carpeta raíz: C:\Users\ruthe\.gemini\antigravity\scratch\jnconta
+[2026-04-08T00:42:30.631Z] ⏳ Esperando comandos en .bridge_cmd.json ...
+
+[2026-04-08T00:43:01.579Z] 🚀 Ejecutando [list-outputs-recheck]: Get-ChildItem -Name '.bridge_out*'
+[2026-04-08T00:43:02.038Z] ✅ Completado [list-outputs-recheck] | exit: 0
+[2026-04-08T00:43:40.170Z] 🚀 Ejecutando [run-reliable-test-v2]: npx -y tsx reliable_test.ts
+[2026-04-08T00:43:48.146Z] ✅ Completado [run-reliable-test-v2] | exit: 1
+[2026-04-08T00:43:48.149Z] ⚠️  stderr: ❌ RELIABILITY TEST FAILED!
+PrismaClientInitializationError: 
+Invalid `prisma.company.create()` invocation in
+c:\Users\ruthe\.gemini\antigravity\scratch\jnconta\api\reliable_test.ts:11:46
+
+   8 
+   9 t
+[2026-04-08T00:44:11.559Z] 🚀 Ejecutando [check-docker-status]: docker ps
+[2026-04-08T00:44:12.157Z] ✅ Completado [check-docker-status] | exit: 1
+[2026-04-08T00:44:12.158Z] ⚠️  stderr: failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: El sistema no puede
+[2026-04-08T00:44:33.040Z] 🚀 Ejecutando [check-postgres-service]: Get-Service postgre*
+[2026-04-08T00:44:33.645Z] ✅ Completado [check-postgres-service] | exit: 0
+[2026-04-08T00:58:46.345Z] 🌉 JnConta Execution Bridge ACTIVO
+[2026-04-08T00:58:46.351Z] 📂 Carpeta raíz: C:\Users\ruthe\.gemini\antigravity\scratch\jnconta
+[2026-04-08T00:58:46.351Z] ⏳ Esperando comandos en .bridge_cmd.json ...
+
+[2026-04-08T00:59:11.764Z] 🚀 Ejecutando [run-reliable-test-v3]: npx -y tsx reliable_test.ts
+[2026-04-08T00:59:15.064Z] ✅ Completado [run-reliable-test-v3] | exit: 0
+[2026-04-08T01:43:07.293Z] 🚀 Ejecutando [seed-templates]: npx -y tsx seed_templates.ts
+[2026-04-08T01:43:11.824Z] ✅ Completado [seed-templates] | exit: 0
+[2026-04-08T02:13:41.515Z] 🚀 Ejecutando [install-recharts]: npm install recharts --save
+[2026-04-08T02:14:00.086Z] ✅ Completado [install-recharts] | exit: 0
+[2026-04-08T02:19:28.424Z] 🚀 Ejecutando [restart-elite-services]: cd api; npm run start:dev & cd ../frontend; npm run dev
+[2026-04-08T02:19:29.199Z] ✅ Completado [restart-elite-services] | exit: 1
+[2026-04-08T02:19:29.200Z] ⚠️  stderr: En l�nea: 1 Car�cter: 27
++ cd api; npm run start:dev & cd ../frontend; npm run dev
++                           ~
+No se permite usar el car�cter de Y comercial (&). El operador & est� reservado para
+[2026-04-08T17:53:39.300Z] 🚀 Ejecutando [run-all-tests]: cd api; npx jest --coverage --forceExit 2>&1 | Select-Object -First 150
+[2026-04-08T17:54:53.929Z] ✅ Completado [run-all-tests] | exit: 1
+[2026-04-08T17:54:53.930Z] ⚠️  stderr: npx : PASS src/inventory.controller.spec.ts (29.589 s)
+En l�nea: 1 Car�cter: 9
++ cd api; npx jest --coverage --forceExit 2>&1 | Select-Object -First 1 ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

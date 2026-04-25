@@ -1,0 +1,9 @@
+{
+  "id": "start-frontend",
+  "command": "Start-Process powershell -ArgumentList '-NoExit', '-Command', 'cd C:\\Users\\ruthe\\.gemini\\antigravity\\scratch\\jnconta\\frontend; npm run dev' -WindowStyle Normal; Start-Sleep 15; netstat -ano | Select-String ':3005|:9000' | Select-Object -First 10",
+  "stdout": "TCP    0.0.0.0:3005           0.0.0.0:0              LISTENING       30428",
+  "stderr": "",
+  "error": null,
+  "exitCode": 0,
+  "timestamp": "2026-04-07T19:31:33.929Z"
+}

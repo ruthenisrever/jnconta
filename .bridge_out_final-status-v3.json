@@ -1,0 +1,9 @@
+{
+  "id": "final-status-v3",
+  "command": "netstat -ano | Select-String ':3005|:3010'",
+  "stdout": "TCP    0.0.0.0:3005           0.0.0.0:0              LISTENING       3844\r\n  TCP    0.0.0.0:3010           0.0.0.0:0              LISTENING       30856\r\n  TCP    [::]:3010              [::]:0                 LISTENING       30856",
+  "stderr": "",
+  "error": null,
+  "exitCode": 0,
+  "timestamp": "2026-04-07T19:48:20.436Z"
+}

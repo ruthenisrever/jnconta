@@ -1,0 +1,9 @@
+{
+  "id": "list-outputs",
+  "command": "Get-ChildItem -Name '.bridge_out*'",
+  "stdout": ".bridge_out.json",
+  "stderr": "",
+  "error": null,
+  "exitCode": 0,
+  "timestamp": "2026-04-07T19:30:07.263Z"
+}

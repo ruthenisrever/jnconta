@@ -1,0 +1,9 @@
+{
+  "id": "regenerate-prisma-clean",
+  "command": "cd api; npx prisma generate",
+  "stdout": "Environment variables loaded from .env\nPrisma schema loaded from prisma\\schema.prisma\n\n✔ Generated Prisma Client (v5.22.0) to .\\node_modules\\@prisma\\client in 335ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\nTip: Want real-time updates to your database without manual polling? Discover how with Pulse: https://pris.ly/tip-0-pulse",
+  "stderr": "┌─────────────────────────────────────────────────────────┐\n│  Update available 5.22.0 -> 7.7.0                       │\n│                                                         │\n│  This is a major update - please follow the guide at    │\n│  https://pris.ly/d/major-version-upgrade                │\n│                                                         │\n│  Run the following to update                            │\n│    npm i --save-dev prisma@latest                       │\n│    npm i @prisma/client@latest                          │\n└─────────────────────────────────────────────────────────┘",
+  "error": null,
+  "exitCode": 0,
+  "timestamp": "2026-04-07T19:41:38.320Z"
+}

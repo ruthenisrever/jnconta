@@ -1,0 +1,9 @@
+{
+  "id": "final-status",
+  "command": "netstat -ano | Select-String ':3005|:9000' | Select-Object -First 10",
+  "stdout": "",
+  "stderr": "",
+  "error": "spawn powershell.exe ENOENT",
+  "exitCode": "ENOENT",
+  "timestamp": "2026-04-07T19:32:58.389Z"
+}

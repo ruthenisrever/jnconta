@@ -1,0 +1,9 @@
+{
+  "id": "prisma-migrate-phase1",
+  "command": "cd api; npx prisma migrate dev --name add_efos_and_risk_status",
+  "stdout": "Environment variables loaded from .env\nPrisma schema loaded from prisma\\schema.prisma\nDatasource \"db\": PostgreSQL database \"jnconta_db\", schema \"public\" at \"localhost:5433\"",
+  "stderr": "Error: Prisma Migrate has detected that the environment is non-interactive, which is not supported.\n\n`prisma migrate dev` is an interactive command designed to create new migrations and evolve the database in development.\nTo apply existing migrations in deployments, use prisma migrate deploy.\nSee https://www.prisma.io/docs/reference/api-reference/command-reference#migrate-deploy",
+  "error": "Command failed: cd api; npx prisma migrate dev --name add_efos_and_risk_status\nError: Prisma Migrate has detected that the environment is non-interactive, which is not supported.\n\n`prisma migrate dev` is an interactive command designed to create new migrations and evolve the database in development.\nTo apply existing migrations in deployments, use prisma migrate deploy.\nSee https://www.prisma.io/docs/reference/api-reference/command-reference#migrate-deploy\n",
+  "exitCode": 1,
+  "timestamp": "2026-04-07T19:39:09.568Z"
+}

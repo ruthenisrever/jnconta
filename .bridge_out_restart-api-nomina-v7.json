@@ -1,0 +1,9 @@
+{
+  "id": "restart-api-nomina-v7",
+  "command": "cd api; npm run dev",
+  "stdout": "",
+  "stderr": "npm ERR! Missing script: \"dev\"\nnpm ERR! \nnpm ERR! To see a list of scripts, run:\nnpm ERR!   npm run\n\nnpm ERR! A complete log of this run can be found in: C:\\Users\\ruthe\\AppData\\Local\\npm-cache\\_logs\\2026-04-07T21_16_42_706Z-debug-0.log",
+  "error": "Command failed: cd api; npm run dev\nnpm ERR! Missing script: \"dev\"\nnpm ERR! \nnpm ERR! To see a list of scripts, run:\nnpm ERR!   npm run\n\nnpm ERR! A complete log of this run can be found in: C:\\Users\\ruthe\\AppData\\Local\\npm-cache\\_logs\\2026-04-07T21_16_42_706Z-debug-0.log\n",
+  "exitCode": 1,
+  "timestamp": "2026-04-07T21:16:42.929Z"
+}

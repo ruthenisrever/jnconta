@@ -1,0 +1,56 @@
+services:
+  jnconta-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: jnconta_user
+      POSTGRES_PASSWORD: jnconta_password
+      POSTGRES_DB: jnconta_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - jnconta_db_data:/var/lib/postgresql/data
+    networks:
+      - jnconta_network
+
+  jnconta-api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+      - "3005:3000"
+    environment:
+      DATABASE_URL: postgresql://jnconta_user:jnconta_password@jnconta-db:5432/jnconta_db?schema=public
+      PORT: 3000
+      JWT_SECRET: jnconta-super-secret-jwt-2024-change-in-prod
+      BANXICO_TOKEN: ""
+      STRIPE_SECRET_KEY: "sk_test_placeholder"
+      ALLOWED_ORIGINS: "http://localhost:3000,http://localhost:3005,http://localhost:9000,http://localhost:80,http://localhost"
+    depends_on:
+      - jnconta-db
+    command: >
+      sh -c "npx prisma db push --accept-data-loss &&
+             (npm run prisma:seed || echo '[WARN] Seed con advertencias, continuando...') &&
+             node dist/main.js"
+    networks:
+      - jnconta_network
+
+  jnconta-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "9000:80"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3000
+    depends_on:
+      - jnconta-api
+    networks:
+      - jnconta_network
+
+networks:
+  jnconta_network:
+    driver: bridge
+
+volumes:
+  jnconta_db_data:

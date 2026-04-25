@@ -1,0 +1,9 @@
+{
+  "id": "check-postgres-service",
+  "command": "Get-Service postgre*",
+  "stdout": "",
+  "stderr": "",
+  "error": null,
+  "exitCode": 0,
+  "timestamp": "2026-04-08T00:44:33.643Z"
+}

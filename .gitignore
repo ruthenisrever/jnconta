@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.next/
+.env
+*.log
+.DS_Store
+C:\Users\ruthe\.gemini\antigravity\scratch\jnconta\api\node_modules
+C:\Users\ruthe\.gemini\antigravity\scratch\jnconta\frontend\node_modules
+C:\Users\ruthe\.gemini\antigravity\scratch\jnconta\frontend\.next

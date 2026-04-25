@@ -1,0 +1,9 @@
+{
+  "id": "list-outputs-recheck",
+  "command": "Get-ChildItem -Name '.bridge_out*'",
+  "stdout": ".bridge_out.json\r\n.bridge_out_check-ports-2.json\r\n.bridge_out_check-ports.json\r\n.bridge_out_docker-status.json\r\n.bridge_out_final-status-v2.json\r\n.bridge_out_final-status-v3.json\r\n.bridge_out_final-status.json\r\n.bridge_out_fix-prisma-types-phase2.json\r\n.bridge_out_fix-prisma-types-phase3.json\r\n.bridge_out_fix-prisma-types-phase4.json\r\n.bridge_out_fix-prisma-types-phase7.json\r\n.bridge_out_full-sync-api-v7.json\r\n.bridge_out_list-outputs.json\r\n.bridge_out_prisma-db-push-phase2.json\r\n.bridge_out_prisma-db-push-phase3.json\r\n.bridge_out_prisma-db-push.json\r\n.bridge_out_prisma-generate-final-v7.json\r\n.bridge_out_prisma-generate-nomina-v7.json\r\n.bridge_out_prisma-migrate-phase1.json\r\n.bridge_out_regenerate-prisma-clean.json\r\n.bridge_out_restart-api-nomina-v7.json\r\n.bridge_out_safe-launch-v1.json\r\n.bridge_out_start-api-clean-v7.json\r\n.bridge_out_start-api.json\r\n.bridge_out_start-frontend.json",
+  "stderr": "",
+  "error": null,
+  "exitCode": 0,
+  "timestamp": "2026-04-08T00:43:02.037Z"
+}

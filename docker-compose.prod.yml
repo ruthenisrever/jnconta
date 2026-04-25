@@ -1,0 +1,78 @@
+services:
+  jnconta-db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - jnconta_db_data:/var/lib/postgresql/data
+    networks:
+      - jnconta_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  jnconta-api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@jnconta-db:5432/${DB_NAME}?schema=public
+      PORT: 3000
+      JWT_SECRET: ${JWT_SECRET}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      ALLOWED_ORIGINS: "https://jnconta.com,https://www.jnconta.com"
+      APP_URL: "https://jnconta.com"
+      NODE_ENV: production
+    depends_on:
+      jnconta-db:
+        condition: service_healthy
+    command: >
+      sh -c "npx prisma migrate deploy &&
+             node dist/src/main.js"
+    networks:
+      - jnconta_network
+
+  jnconta-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: "https://jnconta.com"
+    restart: always
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+    depends_on:
+      - jnconta-api
+    networks:
+      - jnconta_network
+
+  jnconta-nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d/jnconta.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+    depends_on:
+      - jnconta-api
+      - jnconta-frontend
+    networks:
+      - jnconta_network
+
+networks:
+  jnconta_network:
+    driver: bridge
+
+volumes:
+  jnconta_db_data:

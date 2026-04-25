@@ -1,0 +1,5 @@
+{
+  "id": "activate-production-final",
+  "command": "node activate_production.js",
+  "cwd": "c:/Users/ruthe/.gemini/antigravity/scratch/jnconta"
+}

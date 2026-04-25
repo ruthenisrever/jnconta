@@ -1,0 +1,9 @@
+{
+  "id": "check-docker-status",
+  "command": "docker ps",
+  "stdout": "",
+  "stderr": "failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: El sistema no puede encontrar el archivo especificado.",
+  "error": "Command failed: docker ps\nfailed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine; check if the path is correct and if the daemon is running: open //./pipe/dockerDesktopLinuxEngine: El sistema no puede encontrar el archivo especificado.\n",
+  "exitCode": 1,
+  "timestamp": "2026-04-08T00:44:12.155Z"
+}

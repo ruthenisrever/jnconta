@@ -1,0 +1,9 @@
+{
+  "id": "restart-elite-services",
+  "command": "cd api; npm run start:dev & cd ../frontend; npm run dev",
+  "stdout": "",
+  "stderr": "En l�nea: 1 Car�cter: 27\r\n+ cd api; npm run start:dev & cd ../frontend; npm run dev\r\n+                           ~\r\nNo se permite usar el car�cter de Y comercial (&). El operador & est� reservado para un uso futuro; encierre un \r\ns�mbolo de Y comercial entre comillas dobles (\"&\") para pasarlo como parte de una cadena.\r\n    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException\r\n    + FullyQualifiedErrorId : AmpersandNotAllowed",
+  "error": "Command failed: cd api; npm run start:dev & cd ../frontend; npm run dev\nEn l�nea: 1 Car�cter: 27\r\n+ cd api; npm run start:dev & cd ../frontend; npm run dev\r\n+                           ~\r\nNo se permite usar el car�cter de Y comercial (&). El operador & est� reservado para un uso futuro; encierre un \r\ns�mbolo de Y comercial entre comillas dobles (\"&\") para pasarlo como parte de una cadena.\r\n    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException\r\n    + FullyQualifiedErrorId : AmpersandNotAllowed\r\n \r\n",
+  "exitCode": 1,
+  "timestamp": "2026-04-08T02:19:29.198Z"
+}

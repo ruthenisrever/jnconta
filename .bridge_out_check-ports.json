@@ -1,0 +1,9 @@
+{
+  "id": "check-ports",
+  "command": "netstat -ano | Select-String ':3005|:9000|:5433' | Select-Object -First 20",
+  "stdout": "TCP    0.0.0.0:5433           0.0.0.0:0              LISTENING       23500\r\n  TCP    [::]:5433              [::]:0                 LISTENING       23500\r\n  TCP    [::1]:5433             [::]:0                 LISTENING       20604",
+  "stderr": "",
+  "error": null,
+  "exitCode": 0,
+  "timestamp": "2026-04-07T19:30:32.196Z"
+}
