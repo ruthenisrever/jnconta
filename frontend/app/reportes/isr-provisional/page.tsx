@@ -61,117 +61,132 @@ export default function IsrProvisionalPage() {
         </div>
       </header>
 
-      {data && (
-        <>
-          {/* KPIs */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="kpi-card border-l-4 border-l-teal-500">
-              <div className="kpi-card-label">Ingresos del Periodo</div>
-              <div className="kpi-card-value text-teal-400">{fmt(data.isr?.ingresos)}</div>
-            </div>
-            <div className="kpi-card border-l-4 border-l-red-500">
-              <div className="kpi-card-label">Deducciones Autorizadas</div>
-              <div className="kpi-card-value text-danger">{fmt(data.isr?.deducciones)}</div>
-            </div>
-            <div className="kpi-card border-l-4 border-l-amber-500">
-              <div className="kpi-card-label">Base Gravable</div>
-              <div className="kpi-card-value text-amber-400">{fmt(data.isr?.base)}</div>
-            </div>
-            <div className="kpi-card border-l-4 border-l-primary-500">
-              <div className="kpi-card-label">ISR Estimado a Pagar</div>
-              <div className="kpi-card-value text-primary-400">{fmt(data.isr?.estimado)}</div>
-            </div>
+      {data ? (
+        data.message === 'Unauthorized' || data.statusCode === 401 ? (
+          <div className="panel p-12 text-center">
+            <Info size={48} className="mx-auto mb-4 text-danger opacity-50" />
+            <h2 className="text-xl font-bold mb-2">Sesión Expirada</h2>
+            <p className="text-muted mb-6">Tu sesión ha terminado. Por favor, inicia sesión de nuevo para ver este reporte.</p>
+            <button className="btn btn-primary" onClick={() => window.location.href = '/login'}>Ir al Login</button>
           </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* CALCULO ISR */}
-            <div className="panel">
-              <h3 className="font-bold mb-6 flex items-center gap-2">
-                <Calculator size={18} className="text-primary-400" />
-                Cédula ISR Provisional — {meses[month - 1]} {year}
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between py-3 border-b border-surface-3">
-                  <span className="text-sm">Ingresos Nominales del Periodo</span>
-                  <span className="font-bold text-teal-400">{fmt(data.isr?.ingresos)}</span>
-                </div>
-                <div className="flex justify-between py-3 border-b border-surface-3">
-                  <span className="text-sm text-muted">(–) Deducciones Autorizadas</span>
-                  <span className="font-bold text-danger">({fmt(data.isr?.deducciones)})</span>
-                </div>
-                <div className="flex justify-between py-3 border-b border-surface-3 bg-surface-2 px-3 rounded">
-                  <span className="text-sm font-bold">Base para ISR Provisional</span>
-                  <span className="font-bold">{fmt(data.isr?.base)}</span>
-                </div>
-                <div className="flex justify-between py-3 border-b border-surface-3">
-                  <span className="text-sm text-muted">Tasa Aplicable (Art. 9 LISR)</span>
-                  <span className="font-mono text-amber-400">30%</span>
-                </div>
-                <div className="flex justify-between py-3 border-b border-surface-3">
-                  <span className="text-sm text-muted">(–) Pagos Provisionales Anteriores</span>
-                  <span className="font-mono text-muted">$0.00*</span>
-                </div>
-                <div className="flex justify-between py-4 bg-primary-500/10 rounded-xl px-4 border border-primary-500/20">
-                  <span className="font-bold">ISR a Pagar este Mes</span>
-                  <span className="font-bold text-xl text-primary-400">{fmt(data.isr?.estimado)}</span>
-                </div>
+        ) : (
+          <>
+            {/* KPIs */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <div className="kpi-card border-l-4 border-l-teal-500">
+                <div className="kpi-card-label">Ingresos del Periodo</div>
+                <div className="kpi-card-value text-teal-400">{fmt(data.isr?.ingresos)}</div>
               </div>
-              <p className="text-xs text-muted mt-3 italic">* Los pagos provisionales anteriores deben actualizarse manualmente en el sistema.</p>
-            </div>
-
-            {/* IVA PANEL */}
-            <div className="panel">
-              <h3 className="font-bold mb-6 flex items-center gap-2">
-                <BarChart3 size={18} className="text-teal-400" />
-                IVA Estimado — {meses[month - 1]} {year}
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between py-3 border-b border-surface-3">
-                  <span className="text-sm">IVA Trasladado (Ventas 16%)</span>
-                  <span className="font-bold text-danger">{fmt(data.iva?.trasladado)}</span>
-                </div>
-                <div className="flex justify-between py-3 border-b border-surface-3">
-                  <span className="text-sm text-muted">(–) IVA Acreditable (Compras)</span>
-                  <span className="font-bold text-success">({fmt(data.iva?.acreditable)})</span>
-                </div>
-                <div className={`flex justify-between py-4 rounded-xl px-4 border ${(data.iva?.neto ?? 0) > 0 ? 'bg-danger/10 border-danger/20' : 'bg-success/10 border-success/20'}`}>
-                  <span className="font-bold">IVA Neto a Pagar / Favor</span>
-                  <span className={`font-bold text-xl ${(data.iva?.neto ?? 0) > 0 ? 'text-danger' : 'text-success'}`}>
-                    {(data.iva?.neto ?? 0) < 0 ? 'SALDO A FAVOR ' : ''}{fmt(Math.abs(data.iva?.neto ?? 0))}
-                  </span>
-                </div>
+              <div className="kpi-card border-l-4 border-l-red-500">
+                <div className="kpi-card-label">Deducciones Autorizadas</div>
+                <div className="kpi-card-value text-danger">{fmt(data.isr?.deducciones)}</div>
               </div>
-
-              <div className="mt-6 p-4 bg-surface-2 rounded-xl border border-surface-3">
-                <h4 className="font-bold mb-3 text-sm flex items-center gap-2">
-                  <TrendingUp size={16} className="text-amber-400" /> Resumen Obligaciones del Mes
-                </h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>ISR Provisional</span>
-                    <span className="font-bold">{fmt(data.isr?.estimado)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>IVA a Cargo</span>
-                    <span className="font-bold">{fmt(Math.max(0, data.iva?.neto ?? 0))}</span>
-                  </div>
-                  <div className="flex justify-between text-base font-bold pt-2 border-t border-surface-3">
-                    <span>Total Obligaciones Fiscales</span>
-                    <span className="text-primary-400">{fmt(data.summary?.totalToPay)}</span>
-                  </div>
-                </div>
+              <div className="kpi-card border-l-4 border-l-amber-500">
+                <div className="kpi-card-label">Base Gravable</div>
+                <div className="kpi-card-value text-amber-400">{fmt(data.isr?.base)}</div>
+              </div>
+              <div className="kpi-card border-l-4 border-l-primary-500">
+                <div className="kpi-card-label">ISR Estimado a Pagar</div>
+                <div className="kpi-card-value text-primary-400">{fmt(data.isr?.estimado)}</div>
               </div>
             </div>
-          </div>
 
-          <div className="mt-6 p-4 bg-amber-500/10 rounded-xl border border-amber-500/20 flex gap-3">
-            <Info size={18} className="text-amber-400 flex-shrink-0 mt-0.5" />
-            <div className="text-xs text-amber-300 space-y-1">
-              <p className="font-bold">Aviso importante</p>
-              <p>Este cálculo es una <strong>estimación</strong> basada en los datos registrados en JnConta. Para presentar tu declaración provisional, utiliza el portal del SAT (DeclaraSAT) o consulta a tu contador. Los pagos provisionales de ISR vencen el día 17 del mes siguiente al periodo declarado.</p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* CALCULO ISR */}
+              <div className="panel">
+                <h3 className="font-bold mb-6 flex items-center gap-2">
+                  <Calculator size={18} className="text-primary-400" />
+                  Cédula ISR Provisional — {meses[month - 1]} {year}
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between py-3 border-b border-surface-3">
+                    <span className="text-sm">Ingresos Nominales del Periodo</span>
+                    <span className="font-bold text-teal-400">{fmt(data.isr?.ingresos)}</span>
+                  </div>
+                  <div className="flex justify-between py-3 border-b border-surface-3">
+                    <span className="text-sm text-muted">(–) Deducciones Autorizadas</span>
+                    <span className="font-bold text-danger">({fmt(data.isr?.deducciones)})</span>
+                  </div>
+                  <div className="flex justify-between py-3 border-b border-surface-3 bg-surface-2 px-3 rounded">
+                    <span className="text-sm font-bold">Base para ISR Provisional</span>
+                    <span className="font-bold">{fmt(data.isr?.base)}</span>
+                  </div>
+                  <div className="flex justify-between py-3 border-b border-surface-3">
+                    <span className="text-sm text-muted">Tasa Aplicable (Art. 9 LISR)</span>
+                    <span className="font-mono text-amber-400">30%</span>
+                  </div>
+                  <div className="flex justify-between py-3 border-b border-surface-3">
+                    <span className="text-sm text-muted">(–) Pagos Provisionales Anteriores</span>
+                    <span className="font-mono text-muted">$0.00*</span>
+                  </div>
+                  <div className="flex justify-between py-4 bg-primary-500/10 rounded-xl px-4 border border-primary-500/20">
+                    <span className="font-bold">ISR a Pagar este Mes</span>
+                    <span className="font-bold text-xl text-primary-400">{fmt(data.isr?.estimado)}</span>
+                  </div>
+                </div>
+                <p className="text-xs text-muted mt-3 italic">* Los pagos provisionales anteriores deben actualizarse manualmente en el sistema.</p>
+              </div>
+
+              {/* IVA PANEL */}
+              <div className="panel">
+                <h3 className="font-bold mb-6 flex items-center gap-2">
+                  <BarChart3 size={18} className="text-teal-400" />
+                  IVA Estimado — {meses[month - 1]} {year}
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between py-3 border-b border-surface-3">
+                    <span className="text-sm">IVA Trasladado (Ventas 16%)</span>
+                    <span className="font-bold text-danger">{fmt(data.iva?.trasladado)}</span>
+                  </div>
+                  <div className="flex justify-between py-3 border-b border-surface-3">
+                    <span className="text-sm text-muted">(–) IVA Acreditable (Compras)</span>
+                    <span className="font-bold text-success">({fmt(data.iva?.acreditable)})</span>
+                  </div>
+                  <div className={`flex justify-between py-4 rounded-xl px-4 border ${(data.iva?.neto ?? 0) > 0 ? 'bg-danger/10 border-danger/20' : 'bg-success/10 border-success/20'}`}>
+                    <span className="font-bold">IVA Neto a Pagar / Favor</span>
+                    <span className={`font-bold text-xl ${(data.iva?.neto ?? 0) > 0 ? 'text-danger' : 'text-success'}`}>
+                      {(data.iva?.neto ?? 0) < 0 ? 'SALDO A FAVOR ' : ''}{fmt(Math.abs(data.iva?.neto ?? 0))}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-surface-2 rounded-xl border border-surface-3">
+                  <h4 className="font-bold mb-3 text-sm flex items-center gap-2">
+                    <TrendingUp size={16} className="text-amber-400" /> Resumen Obligaciones del Mes
+                  </h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>ISR Provisional</span>
+                      <span className="font-bold">{fmt(data.isr?.estimado)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>IVA a Cargo</span>
+                      <span className="font-bold">{fmt(Math.max(0, data.iva?.neto ?? 0))}</span>
+                    </div>
+                    <div className="flex justify-between text-base font-bold pt-2 border-t border-surface-3">
+                      <span>Total Obligaciones Fiscales</span>
+                      <span className="text-primary-400">{fmt(data.summary?.totalToPay)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </>
+
+            <div className="mt-6 p-4 bg-amber-500/10 rounded-xl border border-amber-500/20 flex gap-3">
+              <Info size={18} className="text-amber-400 flex-shrink-0 mt-0.5" />
+              <div className="text-xs text-amber-300 space-y-1">
+                <p className="font-bold">Aviso importante</p>
+                <p>Este cálculo es una <strong>estimación</strong> basada en los datos registrados en JnConta. Para presentar tu declaración provisional, utiliza el portal del SAT (DeclaraSAT) o consulta a tu contador. Los pagos provisionales de ISR vencen el día 17 del mes siguiente al periodo declarado.</p>
+              </div>
+            </div>
+          </>
+        )
+      ) : !loading && (
+        <div className="panel p-12 text-center">
+          <BarChart3 size={48} className="mx-auto mb-4 text-muted opacity-20" />
+          <p className="text-muted">No hay datos disponibles para el periodo seleccionado.</p>
+          <p className="text-xs mt-2">Asegúrate de haber registrado facturas o pólizas en este mes.</p>
+        </div>
       )}
     </div>
   );

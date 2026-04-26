@@ -28,11 +28,34 @@ export class CompaniesController {
   }
 
   @Post()
-  async create(@Body() body: any) {
+  async create(
+    @Body() body: any,
+    @Headers('authorization') auth: string
+  ) {
     if (!body.rfc || !body.name) {
       throw new BadRequestException('RFC and Name are required');
     }
-    return this.prisma.company.create({
+
+    // Identificar usuario y su tenant
+    let tenantId = null;
+    let userId = null;
+    if (auth?.startsWith('Bearer ')) {
+      try {
+        const payload = jwt.verify(auth.replace('Bearer ', ''), getJwtSecret()) as any;
+        userId = payload.sub;
+        
+        // Buscar el tenant de la empresa actual del usuario
+        if (payload.companyId) {
+          const userComp = await this.prisma.company.findUnique({ where: { id: payload.companyId } });
+          tenantId = userComp?.tenantId;
+        }
+      } catch (e) {
+        // Ignorar si el token es inválido, dejará tenantId como null
+      }
+    }
+
+    // Crear la nueva empresa
+    const newCompany = await this.prisma.company.create({
       data: {
         name: body.name,
         rfc: body.rfc,
@@ -41,9 +64,24 @@ export class CompaniesController {
         email: body.email,
         phone: body.phone,
         currency: body.currency || 'MXN',
+        tenantId: tenantId,
       },
     });
+
+    // Si el usuario está autenticado, darle acceso (como admin/owner) a la nueva empresa
+    if (userId) {
+      await (this.prisma as any).userCompany.create({
+        data: {
+          userId: userId,
+          companyId: newCompany.id,
+          role: 'admin'
+        }
+      });
+    }
+
+    return newCompany;
   }
+
 
   @Post(':id/logo')
   @UseInterceptors(FileInterceptor('file'))

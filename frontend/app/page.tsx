@@ -31,13 +31,23 @@ interface DashboardData {
 
 // --- Custom Premium SVG Line Chart ---
 const PremiumLineChart = ({ data }: { data: any[] }) => {
-  if (!data || data.length === 0) return null;
-  const maxVal = Math.max(...data.map(d => Math.max(d.income, d.expenses))) * 1.2;
+  if (!data || data.length === 0) {
+    return (
+      <div className="h-full flex items-center justify-center text-gray-500 italic text-sm">
+        No hay datos suficientes para generar la gráfica
+      </div>
+    );
+  }
+  
+  const allValues = data.flatMap(d => [d.income, d.expenses]);
+  const maxValRaw = Math.max(...allValues);
+  const maxVal = maxValRaw === 0 ? 1000 : maxValRaw * 1.2;
+  
   const width = 800;
   const height = 300;
   const padding = 40;
 
-  const getX = (i: number) => (i * (width - padding * 2)) / (data.length - 1) + padding;
+  const getX = (i: number) => (i * (width - padding * 2)) / Math.max(1, data.length - 1) + padding;
   const getY = (val: number) => height - (val / maxVal) * (height - padding * 2) - padding;
 
   const incomePoints = data.map((d, i) => `${getX(i)},${getY(d.income)}`).join(' ');

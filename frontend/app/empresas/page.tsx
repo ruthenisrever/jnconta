@@ -42,18 +42,36 @@ export default function EmpresasPage() {
     setTimeout(() => window.location.reload(), 100);
   };
 
+  const [adding, setAdding] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
   const handleAddCompany = async () => {
+    setErrorMsg('');
+    setAdding(true);
     try {
       const res = await apiFetch('/api/companies', {
         method: 'POST',
         body: JSON.stringify(newCompany),
       });
+      const data = await res.json();
       if (res.ok) {
         setShowAddModal(false);
+        setNewCompany({ name: '', rfc: '', email: '' });
         fetchCompanies();
+        
+        // Auto select the new company
+        localStorage.setItem('companyId', data.id);
+        localStorage.setItem('companyName', data.name);
+        router.push('/');
+        setTimeout(() => window.location.reload(), 500);
+      } else {
+        setErrorMsg(data.message || 'Error al crear la empresa');
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error('Error adding company:', e);
+      setErrorMsg('Error de red al crear empresa');
+    } finally {
+      setAdding(false);
     }
   };
 
@@ -158,6 +176,13 @@ export default function EmpresasPage() {
               <h2 className="text-xl font-black mb-6 flex items-center gap-2">
                 <Plus size={24} className="text-primary-400" /> Alta de Empresa Cliente
               </h2>
+              
+              {errorMsg && (
+                <div className="mb-4 p-3 bg-danger/10 border border-danger/20 text-danger rounded-xl text-sm font-semibold">
+                  {errorMsg}
+                </div>
+              )}
+
               <div className="space-y-4">
                  <div className="form-group">
                    <label className="text-xs font-bold text-muted mb-1 block">Nombre de la Empresa</label>
@@ -188,14 +213,19 @@ export default function EmpresasPage() {
                  </div>
               </div>
               <div className="flex justify-end gap-3 mt-8">
-                 <button className="btn btn-ghost" onClick={() => setShowAddModal(false)}>Cancelar</button>
-                 <button className="btn btn-primary" onClick={handleAddCompany} disabled={!newCompany.name || !newCompany.rfc}>
-                   Registrar e Ingresar
+                 <button className="btn btn-ghost" onClick={() => setShowAddModal(false)} disabled={adding}>Cancelar</button>
+                 <button 
+                   className="btn btn-primary" 
+                   onClick={handleAddCompany} 
+                   disabled={!newCompany.name || !newCompany.rfc || adding}
+                 >
+                   {adding ? 'Creando...' : 'Registrar e Ingresar'}
                  </button>
               </div>
            </div>
         </div>
       )}
+
 
       <style jsx>{`
         .glass { background: rgba(16, 24, 39, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }

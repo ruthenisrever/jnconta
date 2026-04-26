@@ -61,12 +61,18 @@ describe('LoginPage', () => {
 
   it('debe llamar a la API y guardar el token en localStorage al hacer login exitoso', async () => {
     const mockToken = 'jwt-token-abc123';
+    // Mock login
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         access_token: mockToken,
         user: { id: 'u1', name: 'Admin', email: 'admin@jnconta.com', role: 'admin', companyId: 'c1' },
       }),
+    });
+    // Mock my-companies (segunda llamada)
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ([{ id: 'c1', name: 'Empresa Test' }]),
     });
 
     await act(async () => {
