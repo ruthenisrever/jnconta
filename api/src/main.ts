@@ -13,7 +13,14 @@ async function bootstrap() {
         process.env.FRONTEND_URL
       ].filter(Boolean);
 
-      if (!origin || allowedOrigins.includes(origin) || origin.includes('localhost')) {
+      if (
+        !origin || 
+        allowedOrigins.includes(origin) || 
+        origin.includes('localhost') || 
+        origin.includes('127.0.0.1') || 
+        origin.includes('jnconta.com') ||
+        origin.includes('187.77.24.105')
+      ) {
         callback(null, true);
       } else {
         callback(new Error(`CORS: Origen ${origin} no está permitido.`));
