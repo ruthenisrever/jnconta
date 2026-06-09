@@ -41,7 +41,12 @@ function RegisterForm() {
         }),
       });
       const signupData = await signupRes.json();
-      if (!signupRes.ok) throw new Error(signupData.message || 'Error al crear la cuenta');
+      if (!signupRes.ok) {
+        let m = signupData.message;
+        if (Array.isArray(m)) m = m[0];
+        if (m === 'Internal server error') m = 'Error en base de datos o servidor (500).';
+        throw new Error(m || 'Error al crear la cuenta');
+      }
 
       localStorage.setItem('jnconta_token', signupData.access_token);
       localStorage.setItem('jnconta_user', JSON.stringify(signupData.user));

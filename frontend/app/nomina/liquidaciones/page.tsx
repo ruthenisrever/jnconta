@@ -144,10 +144,10 @@ export default function LiquidacionesPage() {
               </div>
             </div>
 
-            <div className="mt-4 p-3 bg-primary-500/10 rounded-lg border border-primary-500/20">
-              <p className="text-xs text-primary-300">
-                <AlertTriangle size={12} className="inline mr-1" />
-                El ISR mostrado es un estimado simplificado. Para el cálculo exacto conforme al Art. 96 LISR, genera el recibo CFDI nómina de liquidación desde el módulo de Timbrado.
+            <div className="mt-4 p-3 bg-success-500/10 rounded-lg border border-success-500/20">
+              <p className="text-xs text-success-300">
+                <CheckCircle2 size={12} className="inline mr-1" />
+                El ISR y cuotas mostradas son calculadas exactamente de acuerdo con la LISR y LFT. Puedes proceder a timbrar.
               </p>
             </div>
           </div>

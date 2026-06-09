@@ -1,3 +1,4 @@
+import { TaxService } from './tax.service';
 import { Controller, Get, Post, Put, Body, Param, Query, BadRequestException, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { PrismaService } from './prisma.service';
@@ -9,7 +10,8 @@ export class NominaController {
   constructor(
     private prisma: PrismaService,
     private payrollService: PayrollService,
-    private taxes: PayrollTaxesService
+    private taxes: PayrollTaxesService,
+    private taxService: TaxService
   ) {}
 
   // ── Empleados ──────────────────────────────────────────────────────────────
@@ -300,7 +302,7 @@ export class NominaController {
     const UMA_ANUAL = 108.57 * 365;
     const exentoLiquidacion = type === 'LIQUIDACION' ? Math.min(indemnizacion, UMA_ANUAL * 90) : 0;
     const baseGravable = Math.max(0, totalBruto - exentoLiquidacion);
-    const isrAprox = baseGravable * 0.20; // Simplificado — en producción usar tabla mensual
+    const isrAprox = await this.taxService.calculateISR(baseGravable, 'MENSUAL', 2024);
 
     return {
       employeeId,

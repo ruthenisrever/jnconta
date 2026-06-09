@@ -424,15 +424,25 @@ export class InvoicesController {
         status: 'VIGENTE',
         cartaPorteJson: JSON.stringify(cartaPorte),
         xmlContent,
-        items: { create: items.map((i: any) => ({
-          description: i.description,
-          quantity: Number(i.quantity),
-          unitPrice: Number(i.unitPrice),
-          amount: Number(i.quantity) * Number(i.unitPrice),
-          taxRate: cfdiType === 'T' ? 0 : 0.16,
-          satCode: i.satCode || '78101800',
-          unitKey: i.unitKey || 'KGM',
-        })) },
+        items: { create: items.map((i: any) => {
+          const qty = Number(i.quantity);
+          const price = Number(i.unitPrice);
+          const amount = qty * price;
+          const taxRate = cfdiType === 'T' ? 0 : 0.16;
+          return {
+            description: i.description,
+            quantity: qty,
+            unitPrice: price,
+            // removed amount
+            taxRate: taxRate,
+            subtotal: amount,
+            tax: amount * taxRate,
+            total: amount + (amount * taxRate),
+            satCode: i.satCode || '78101800',
+            unit: i.unitKey || i.unit || 'KGM',
+            pedimento: i.pedimento || null,
+          };
+        }) },
       },
       include: { client: true, items: true },
     });

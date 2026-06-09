@@ -65,6 +65,7 @@ import { PermissionsController } from './permissions.controller';
 import { ExportController } from './export.controller';
 import { ImportController } from './import.controller';
 import { StampingService } from './stamping.service';
+import { TaxService } from './tax.service';
 import { EmailService } from './email.service';
 import { FinkokService } from './pac.service';
 import { StripeService } from './stripe.service';
@@ -127,6 +128,7 @@ import { IaModule } from './ia/ia.module';
     ImportController,
   ],
   providers: [
+    TaxService,
     PrismaService,
     SatService,
     TaxEngineService,

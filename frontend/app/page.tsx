@@ -100,9 +100,12 @@ export default function Dashboard() {
 
   useEffect(() => {
     const cid = typeof window !== 'undefined' ? localStorage.getItem('companyId') : null;
-    if (cid) {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('jnconta_token') : null;
+    if (cid && cid !== 'undefined' && cid !== '') {
       setIsAuthenticated(true);
       fetchDashboard(cid);
+    } else if (token) {
+      window.location.href = '/select-company';
     } else {
       setLoading(false);
     }

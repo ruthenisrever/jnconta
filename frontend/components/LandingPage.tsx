@@ -24,7 +24,7 @@ export default function LandingPage() {
       description: 'Gestión profesional para PYMEs.',
       folios: '60 folios',
       tokens: '250k Tokens IA',
-      features: ['Contabilidad Core', 'Bancos y Conciliación', 'IA: Javier Básico', '3 RFCs incluidos'],
+      features: ['Contabilidad Core', 'Bancos y Conciliación', 'IA: Javy Básico', '3 RFCs incluidos'],
       highlight: true,
       accent: 'indigo'
     },
@@ -43,7 +43,7 @@ export default function LandingPage() {
       description: 'La estación de trabajo del contador.',
       folios: '800 folios',
       tokens: '5M Tokens IA',
-      features: ['50 RFCs incluidos', 'Auditoría Forense (EFOs)', 'Javier IA Pro', 'Soporte Prioritario'],
+      features: ['50 RFCs incluidos', 'Auditoría Forense (EFOs)', 'Javy IA Pro', 'Soporte Prioritario'],
       accent: 'emerald'
     }
   ];
@@ -78,7 +78,7 @@ export default function LandingPage() {
 
         <div className="max-w-6xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-widest mb-6">
-            <Cpu className="w-3 h-3" /> Potenciado por Javier IA
+            <Cpu className="w-3 h-3" /> Potenciado por Javy IA
           </div>
           <h1 className="text-7xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-8">
             CONTABILIDAD <br />

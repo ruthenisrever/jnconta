@@ -354,7 +354,7 @@ export default function ContabilizadorElite() {
             {loading ? (
               <div className="flex flex-col items-center justify-center py-32 space-y-4">
                 <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
-                <p className="font-bold text-gray-400 italic">Javier AI está calculando los asientos óptimos...</p>
+                <p className="font-bold text-gray-400 italic">Javy IA está calculando los asientos óptimos...</p>
               </div>
             ) : (
               <div className="space-y-8">

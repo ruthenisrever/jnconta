@@ -34,7 +34,12 @@ export default function LoginPage() {
         body: JSON.stringify({ email: trimmedEmail, password: trimmedPassword }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Credenciales inválidas');
+      if (!res.ok) {
+        let m = data.message;
+        if (Array.isArray(m)) m = m[0];
+        if (m === 'Internal server error') m = 'Error en base de datos o servidor (500).';
+        throw new Error(m || 'Credenciales inválidas');
+      }
       localStorage.setItem('jnconta_token', data.access_token);
       localStorage.setItem('jnconta_user', JSON.stringify(data.user));
       localStorage.setItem('companyId', data.user.companyId);
@@ -227,7 +232,7 @@ export default function LoginPage() {
         </p>
 
         <p style={{ marginTop: 24, textAlign: 'center', fontSize: 12, color: 'var(--text-muted)' }}>
-          JnConta Enterprise v2.0 — <span style={{ color: 'var(--primary-400)' }}>Contabilidad con paridad ContPAQi</span>
+          JnConta Enterprise v2.0 — <span style={{ color: 'var(--primary-400)' }}>Sistema Contable Integral</span>
         </p>
       </div>
 

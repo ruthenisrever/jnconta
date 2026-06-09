@@ -356,6 +356,7 @@ model InvoiceItem {
   total        Float
   unit         String   @default("PZA")
   satCode      String   @default("01010101")
+  pedimento    String?  // InformacionAduanera (NumeroPedimento)
 }
 
 // ─────────────────────────────────────────────
@@ -762,10 +763,30 @@ model Employee {
   companyId         String
   company           Company           @relation(fields: [companyId], references: [id])
   receipts          PayrollReceipt[]
+  incidences        Incidence[]
+  vacations         VacationRecord[]
+  terminationDate   DateTime?
+  terminationReason String?
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 
   @@unique([code, companyId])
+}
+
+model Incidence {
+  id                String            @id @default(uuid())
+  employeeId        String
+  employee          Employee          @relation(fields: [employeeId], references: [id])
+  periodId          String
+  period            PayrollPeriod     @relation(fields: [periodId], references: [id])
+  type              String            // FALTAS, HORAS_EXTRAS, INCAPACIDAD, VACACIONES
+  date              DateTime?
+  days              Float?            // Ej. 1 falta, 2 dias de incapacidad
+  hours             Int?              // Para Horas Extras
+  extraType         String?           // DOBLES, TRIPLES (Para Horas Extras)
+  notes             String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 }
 
 model PayrollPeriod {
@@ -779,6 +800,7 @@ model PayrollPeriod {
   companyId         String
   company           Company           @relation(fields: [companyId], references: [id])
   receipts          PayrollReceipt[]
+  incidences        Incidence[]
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 }
@@ -798,6 +820,13 @@ model PayrollReceipt {
   totalDeductions   Float             @default(0)
   netAmount         Float             @default(0)
   status            String            @default("PENDIENTE") // PENDIENTE, TIMBRADO, CANCELADO
+  // Finiquitos / Separacion
+  isFiniquito       Boolean           @default(false)
+  totalPagado       Float?
+  numAnosServicio   Int?
+  ultimoSueldoMensOrd Float?
+  ingresoAcumulable Float?
+  ingresoNoAcumulable Float? // PENDIENTE, TIMBRADO, CANCELADO
   items             PayrollItem[]
   journalId         String?           // Link to the Journal created
   journal           Journal?          @relation(fields: [journalId], references: [id])
@@ -1243,4 +1272,41 @@ model UserModulePermission {
   createdAt DateTime @default(now())
 
   @@unique([userId, module, companyId])
+}
+
+
+model IsrTable {
+  id          String   @id @default(uuid())
+  periodicity String   // MENSUAL, QUINCENAL, SEMANAL, ANUAL
+  year        Int      // 2024, 2025, 2026
+  lowerLimit  Float
+  upperLimit  Float
+  fixedFee    Float
+  percentage  Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SubsidioTable {
+  id          String   @id @default(uuid())
+  periodicity String   // MENSUAL, QUINCENAL, SEMANAL, ANUAL
+  year        Int
+  lowerLimit  Float
+  upperLimit  Float
+  amount      Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model VacationRecord {
+  id          String   @id @default(uuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  year        Int      // Año en que se devengaron (ej. 2024, o Aniversario 1)
+  earnedDays  Int      // Días de derecho (ej. 12)
+  takenDays   Int      @default(0) // Días ya tomados
+  balance     Int      // earnedDays - takenDays
+  expiresAt   DateTime? // Fecha caducidad según LFT
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

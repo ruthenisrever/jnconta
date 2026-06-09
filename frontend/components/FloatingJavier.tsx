@@ -7,7 +7,7 @@ export default function FloatingJavier() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{role: 'user'|'ai', content: string}[]>([{
      role: 'ai', 
-     content: 'Hola, soy **Javier AI**. Analizo esta pantalla y tus datos financieros en tiempo real. ¿Qué duda rápida tienes?'
+     content: 'Hola, soy **Javy IA**. Analizo esta pantalla y tus datos financieros en tiempo real. ¿Qué duda rápida tienes?'
   }]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -64,7 +64,7 @@ export default function FloatingJavier() {
                    <Bot size={18} />
                  </div>
                  <div>
-                   <h3 className="font-bold text-sm text-primary-400 leading-tight">Javier AI</h3>
+                   <h3 className="font-bold text-sm text-primary-400 leading-tight">Javy IA</h3>
                    <span className="text-[9px] uppercase tracking-widest text-success flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse"/> Online</span>
                  </div>
               </div>

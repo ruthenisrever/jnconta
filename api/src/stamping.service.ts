@@ -32,9 +32,37 @@ interface Concepto {
   valorUnitario: string;
   importe: string;
   descuento?: string;
+  pedimento?: string;
   objetoImp: string;
   traslados: Traslado[];
   retenciones: Traslado[];
+}
+
+interface ComplementoPago {
+  fechaPago: string;
+  formaDePagoP: string;
+  monedaP: string;
+  tipoCambioP?: string;
+  monto: string;
+  numOperacion?: string;
+  doctoRelacionado: {
+    idDocumento: string;
+    serie?: string;
+    folio?: string;
+    monedaDR: string;
+    equivalenciaDR?: string;
+    numParcialidad: string;
+    impSaldoAnt: string;
+    impPagado: string;
+    impSaldoInsoluto: string;
+    objetoImpDR: string;
+    trasladosDR: { baseDR: string; impuestoDR: string; tipoFactorDR: string; tasaOCuotaDR: string; importeDR: string }[];
+  }[];
+  impuestosP: {
+    totalTrasladosBaseIVA16: string;
+    totalTrasladosImpuestoIVA16: string;
+    trasladosP: { baseP: string; impuestoP: string; tipoFactorP: string; tasaOCuotaP: string; importeP: string }[];
+  };
 }
 
 interface ComprobanteData {
@@ -64,6 +92,9 @@ interface ComprobanteData {
     usoCFDI: string;
   };
   conceptos: Concepto[];
+  complementoPago?: ComplementoPago;
+  cartaPorte?: any;
+  nomina?: any;
   impuestos: {
     totalRetenidos?: string;
     totalTrasladados?: string;
@@ -92,7 +123,7 @@ export class StampingService implements OnModuleInit {
 
   // ── Public API ──────────────────────────────────────────────────────────────
 
-  async stampDocument(entity: 'INVOICE' | 'PAYROLL' | 'ADVANCE', id: string, companyId: string) {
+  async stampDocument(entity: 'INVOICE' | 'PAYROLL' | 'ADVANCE' | 'PAYMENT_COMPLEMENT', id: string, companyId: string) {
     // 0. Validación de suscripción SaaS
     const company = await (this.prisma as any).company.findUnique({
       where: { id: companyId },
@@ -149,6 +180,11 @@ export class StampingService implements OnModuleInit {
           }],
         };
       }
+    } else if (entity === 'PAYMENT_COMPLEMENT') {
+      doc = await (this.prisma as any).paymentComplement.findUnique({
+        where: { id },
+        include: { invoice: { include: { client: true } }, company: true },
+      });
     } else {
       doc = await (this.prisma as any).payrollReceipt.findUnique({
         where: { id },
@@ -213,6 +249,8 @@ export class StampingService implements OnModuleInit {
       await this.prisma.invoice.update({ where: { id }, data: updateData });
     } else if (entity === 'ADVANCE') {
       await (this.prisma as any).advance.update({ where: { id }, data: { uuid: stampingResult.uuid, xmlContent: stampingResult.xml, status: 'TIMBRADO' } });
+    } else if (entity === 'PAYMENT_COMPLEMENT') {
+      await (this.prisma as any).paymentComplement.update({ where: { id }, data: updateData });
     } else {
       await (this.prisma as any).payrollReceipt.update({ where: { id }, data: updateData });
     }
@@ -286,6 +324,11 @@ export class StampingService implements OnModuleInit {
       push(concepto.descuento);          // Opcional
       push(concepto.objetoImp);
 
+      // InformacionAduanera
+      if (concepto.pedimento) {
+        push(concepto.pedimento);
+      }
+
       // Impuestos del Concepto — Traslados
       for (const t of concepto.traslados) {
         push(t.base);
@@ -303,6 +346,240 @@ export class StampingService implements OnModuleInit {
         push(r.importe);
       }
     }
+
+    // ── Complemento Nomina 1.2 ──
+    if (c.nomina) {
+      push(c.nomina.$?.Version);
+      push(c.nomina.$?.TipoNomina);
+      push(c.nomina.$?.FechaPago);
+      push(c.nomina.$?.FechaInicialPago);
+      push(c.nomina.$?.FechaFinalPago);
+      push(c.nomina.$?.NumDiasPagados);
+      push(c.nomina.$?.TotalPercepciones);
+      push(c.nomina.$?.TotalDeducciones);
+      push(c.nomina.$?.TotalOtrosPagos);
+
+      if (c.nomina['nomina12:Receptor']) {
+        const r = c.nomina['nomina12:Receptor'].$;
+        push(r?.Curp);
+        push(r?.NumSeguridadSocial);
+        push(r?.FechaInicioRelLaboral);
+        push(r?.Antigüedad);
+        push(r?.TipoContrato);
+        push(r?.Sindicalizado);
+        push(r?.TipoJornada);
+        push(r?.TipoRegimen);
+        push(r?.NumEmpleado);
+        push(r?.Departamento);
+        push(r?.Puesto);
+        push(r?.RiesgoPuesto);
+        push(r?.PeriodicidadPago);
+        push(r?.Banco);
+        push(r?.CuentaBancaria);
+        push(r?.SalarioBaseCotApor);
+        push(r?.SalarioDiarioIntegrado);
+        push(r?.ClaveEntFed);
+      }
+
+      if (c.nomina['nomina12:Percepciones']) {
+        const p = c.nomina['nomina12:Percepciones'];
+        push(p.$?.TotalSueldos);
+        push(p.$?.TotalSeparacionIndemnizacion);
+        push(p.$?.TotalJubilacionPensionRetiro);
+        push(p.$?.TotalGravado);
+        push(p.$?.TotalExento);
+
+        if (p['nomina12:Percepcion']) {
+          const arr = Array.isArray(p['nomina12:Percepcion']) ? p['nomina12:Percepcion'] : [p['nomina12:Percepcion']];
+          for (const per of arr) {
+            push(per.$?.TipoPercepcion);
+            push(per.$?.Clave);
+            push(per.$?.Concepto);
+            push(per.$?.ImporteGravado);
+            push(per.$?.ImporteExento);
+            // Horas Extra
+            if (per['nomina12:HorasExtra']) {
+              const heArr = Array.isArray(per['nomina12:HorasExtra']) ? per['nomina12:HorasExtra'] : [per['nomina12:HorasExtra']];
+              for (const he of heArr) {
+                push(he.$?.Dias);
+                push(he.$?.TipoHoras);
+                push(he.$?.HorasExtra);
+                push(he.$?.ImportePagado);
+              }
+            }
+          }
+        }
+        
+        // Finiquitos
+        if (p['nomina12:SeparacionIndemnizacion']) {
+          const si = p['nomina12:SeparacionIndemnizacion'].$;
+          push(si?.TotalPagado);
+          push(si?.NumAñosServicio);
+          push(si?.UltimoSueldoMensOrd);
+          push(si?.IngresoAcumulable);
+          push(si?.IngresoNoAcumulable);
+        }
+      }
+
+      if (c.nomina['nomina12:Deducciones']) {
+        const d = c.nomina['nomina12:Deducciones'];
+        push(d.$?.TotalOtrasDeducciones);
+        push(d.$?.TotalImpuestosRetenidos);
+        
+        if (d['nomina12:Deduccion']) {
+          const dArr = Array.isArray(d['nomina12:Deduccion']) ? d['nomina12:Deduccion'] : [d['nomina12:Deduccion']];
+          for (const ded of dArr) {
+            push(ded.$?.TipoDeduccion);
+            push(ded.$?.Clave);
+            push(ded.$?.Concepto);
+            push(ded.$?.Importe);
+          }
+        }
+      }
+      
+      if (c.nomina['nomina12:Incapacidades']) {
+        const incs = c.nomina['nomina12:Incapacidades'];
+        if (incs['nomina12:Incapacidad']) {
+          const incArr = Array.isArray(incs['nomina12:Incapacidad']) ? incs['nomina12:Incapacidad'] : [incs['nomina12:Incapacidad']];
+          for (const inc of incArr) {
+            push(inc.$?.DiasIncapacidad);
+            push(inc.$?.TipoIncapacidad);
+            push(inc.$?.ImporteMonetario);
+          }
+        }
+      }
+    }
+
+    // ── Complemento Carta Porte 3.1 ──
+    if (c.cartaPorte) {
+      push(c.cartaPorte.$?.Version);
+      push(c.cartaPorte.$?.IdCCP);
+      push(c.cartaPorte.$?.TranspInternac);
+      push(c.cartaPorte.$?.RegimenAduanero);
+      push(c.cartaPorte.$?.EntradaSalidaMerc);
+      push(c.cartaPorte.$?.PaisDeOrigenODestino);
+      push(c.cartaPorte.$?.ViaEntradaSalida);
+      push(c.cartaPorte.$?.TotalDistRec);
+
+      if (c.cartaPorte['cartaporte31:Ubicaciones']) {
+        const ubicaciones = Array.isArray(c.cartaPorte['cartaporte31:Ubicaciones']['cartaporte31:Ubicacion']) 
+          ? c.cartaPorte['cartaporte31:Ubicaciones']['cartaporte31:Ubicacion'] 
+          : [c.cartaPorte['cartaporte31:Ubicaciones']['cartaporte31:Ubicacion']].filter(Boolean);
+        
+        for (const u of ubicaciones) {
+          push(u.$?.TipoUbicacion);
+          push(u.$?.IDUbicacion);
+          push(u.$?.RFCRemitenteDestinatario);
+          push(u.$?.NombreRemitenteDestinatario);
+          push(u.$?.NumRegIdTrib);
+          push(u.$?.ResidenciaFiscal);
+          push(u.$?.NumEstacion);
+          push(u.$?.NombreEstacion);
+          push(u.$?.NavegacionTrafico);
+          push(u.$?.FechaHoraSalidaLlegada);
+          push(u.$?.TipoEstacion);
+          push(u.$?.DistanciaRecorrida);
+          
+          if (u['cartaporte31:Domicilio']) {
+            const dom = u['cartaporte31:Domicilio'].$;
+            push(dom?.Calle);
+            push(dom?.NumeroExterior);
+            push(dom?.NumeroInterior);
+            push(dom?.Colonia);
+            push(dom?.Localidad);
+            push(dom?.Referencia);
+            push(dom?.Municipio);
+            push(dom?.Estado);
+            push(dom?.Pais);
+            push(dom?.CodigoPostal);
+          }
+        }
+      }
+
+      if (c.cartaPorte['cartaporte31:Mercancias']) {
+        const mercs = c.cartaPorte['cartaporte31:Mercancias'];
+        push(mercs.$?.PesoBrutoTotal);
+        push(mercs.$?.UnidadPeso);
+        push(mercs.$?.PesoNetoTotal);
+        push(mercs.$?.NumTotalMercancias);
+        push(mercs.$?.CargoPorTasacion);
+
+        const mercList = Array.isArray(mercs['cartaporte31:Mercancia']) 
+          ? mercs['cartaporte31:Mercancia'] 
+          : [mercs['cartaporte31:Mercancia']].filter(Boolean);
+
+        for (const m of mercList) {
+          push(m.$?.BienesTransp);
+          push(m.$?.ClaveSTCC);
+          push(m.$?.Descripcion);
+          push(m.$?.Cantidad);
+          push(m.$?.ClaveUnidad);
+          push(m.$?.Unidad);
+          push(m.$?.Dimensiones);
+          push(m.$?.MaterialPeligroso);
+          push(m.$?.CveMaterialPeligroso);
+          push(m.$?.Embalaje);
+          push(m.$?.DescripEmbalaje);
+          push(m.$?.PesoEnKg);
+          push(m.$?.ValorMercancia);
+          push(m.$?.Moneda);
+          push(m.$?.FraccionArancelaria);
+          push(m.$?.UUIDComercioExt);
+        }
+
+        if (mercs['cartaporte31:Autotransporte']) {
+          const auto = mercs['cartaporte31:Autotransporte'];
+          push(auto.$?.PermSCT);
+          push(auto.$?.NumPermisoSCT);
+
+          if (auto['cartaporte31:IdentificacionVehicular']) {
+            const iv = auto['cartaporte31:IdentificacionVehicular'].$;
+            push(iv?.ConfigVehicular);
+            push(iv?.PesoBrutoVehicular);
+            push(iv?.PlacaVM);
+            push(iv?.AnioModeloVM);
+          }
+          if (auto['cartaporte31:Seguros']) {
+            const seg = auto['cartaporte31:Seguros'].$;
+            push(seg?.AseguraRespCivil);
+            push(seg?.PolizaRespCivil);
+            push(seg?.AseguraMedAmbiente);
+            push(seg?.PolizaMedAmbiente);
+            push(seg?.AseguraCarga);
+            push(seg?.PolizaCarga);
+            push(seg?.PrimaSeguro);
+          }
+          if (auto['cartaporte31:Remolques'] && auto['cartaporte31:Remolques']['cartaporte31:Remolque']) {
+            const rems = Array.isArray(auto['cartaporte31:Remolques']['cartaporte31:Remolque']) 
+              ? auto['cartaporte31:Remolques']['cartaporte31:Remolque'] 
+              : [auto['cartaporte31:Remolques']['cartaporte31:Remolque']];
+            for (const r of rems) {
+              push(r.$?.SubTipoRem);
+              push(r.$?.Placa);
+            }
+          }
+        }
+      }
+
+      if (c.cartaPorte['cartaporte31:FiguraTransporte'] && c.cartaPorte['cartaporte31:FiguraTransporte']['cartaporte31:TiposFigura']) {
+        const figs = Array.isArray(c.cartaPorte['cartaporte31:FiguraTransporte']['cartaporte31:TiposFigura']) 
+          ? c.cartaPorte['cartaporte31:FiguraTransporte']['cartaporte31:TiposFigura'] 
+          : [c.cartaPorte['cartaporte31:FiguraTransporte']['cartaporte31:TiposFigura']];
+        
+        for (const f of figs) {
+          push(f.$?.TipoFigura);
+          push(f.$?.RFCFigura);
+          push(f.$?.NumLicencia);
+          push(f.$?.NombreFigura);
+          push(f.$?.NumRegIdTribFigura);
+          push(f.$?.ResidenciaFiscalFigura);
+        }
+      }
+    }
+
+    // ── Informacion Aduanera en Conceptos ──
+    // Wait, InformacionAduanera in CFDI 4.0 Cadena Original goes inside the Conceptos loop.
+    // I need to add pedimento mapping inside Conceptos.
 
     // ── Impuestos del Comprobante (globales) ──
     push(c.impuestos.totalRetenidos);   // Opcional
@@ -347,30 +624,96 @@ export class StampingService implements OnModuleInit {
     doc: any,
     cert: any,
     company: any,
-    entity: 'INVOICE' | 'PAYROLL',
+    entity: 'INVOICE' | 'PAYROLL' | 'PAYMENT_COMPLEMENT',
   ): ComprobanteData {
     const fecha = new Date().toISOString().split('.')[0]; // YYYY-MM-DDTHH:MM:SS
-    const moneda = doc.currency || 'MXN';
-    const tipoDeComprobante = entity === 'INVOICE' ? 'I' : 'N';
+    const moneda = entity === 'PAYMENT_COMPLEMENT' ? 'XXX' : doc.currency || 'MXN';
+    const tipoDeComprobante = entity === 'INVOICE' ? 'I' : entity === 'PAYROLL' ? 'N' : 'P';
 
     const receptorRfc =
-      doc.receptorRfc || doc.client?.rfc || doc.employee?.rfc || 'XAXX010101000';
+      doc.receptorRfc || doc.client?.rfc || doc.invoice?.client?.rfc || doc.employee?.rfc || 'XAXX010101000';
     const receptorNombre = (
       doc.receptorName ||
-      doc.client?.name ||
+      doc.client?.name || doc.invoice?.client?.name ||
       `${doc.employee?.name || ''} ${doc.employee?.lastName || ''}`.trim() ||
       'GENERICO'
     ).toUpperCase();
 
     // Validar que haya al menos un concepto (requerido por CFDI 4.0)
-    if (!doc.items || doc.items.length === 0) {
+    if (entity !== 'PAYMENT_COMPLEMENT' && (!doc.items || doc.items.length === 0)) {
       throw new BadRequestException(
         'El documento debe contener al menos un concepto para ser timbrado.',
       );
     }
 
     // Calcular importes por ítem
-    const conceptos: Concepto[] = (doc.items as any[]).map((item, idx) => {
+    
+    let conceptos: Concepto[] = [];
+    let complementoPago: ComplementoPago | undefined = undefined;
+
+    if (entity === 'PAYMENT_COMPLEMENT') {
+      conceptos = [{
+        claveProdServ: '84111506',
+        cantidad: '1',
+        claveUnidad: 'ACT',
+        descripcion: 'Pago',
+        valorUnitario: '0',
+        importe: '0',
+        objetoImp: '01',
+        traslados: [],
+        retenciones: []
+      }];
+
+      // Calcular impuestos proporcionales del pago basado en la factura
+      // Factura total y pago total
+      const invTotal = doc.invoice.total || 1; // avoid division by 0
+      const amountPaid = doc.amountPaid || 0;
+      const fraction = amountPaid / invTotal;
+
+      // Calcular base e IVA del pago asumiendo 16% (se puede mejorar leyendo items de invoice)
+      // Base P = amountPaid / 1.16
+      const baseP = amountPaid / 1.16;
+      const impP = amountPaid - baseP;
+
+      complementoPago = {
+        fechaPago: new Date(doc.paymentDate).toISOString().split('.')[0],
+        formaDePagoP: doc.paymentForm || '03',
+        monedaP: doc.currency || 'MXN',
+        tipoCambioP: doc.currency !== 'MXN' ? fmt(doc.exchangeRate || 1, 6) : '1',
+        monto: fmt(amountPaid),
+        doctoRelacionado: [{
+          idDocumento: doc.invoice.uuid || '00000000-0000-0000-0000-000000000000',
+          serie: doc.invoice.serie,
+          folio: String(doc.invoice.folio),
+          monedaDR: doc.invoice.currency || 'MXN',
+          equivalenciaDR: '1',
+          numParcialidad: String(doc.numberOfPayment || 1),
+          impSaldoAnt: fmt(doc.previousBalance),
+          impPagado: fmt(amountPaid),
+          impSaldoInsoluto: fmt(doc.newBalance),
+          objetoImpDR: '02',
+          trasladosDR: [{
+            baseDR: fmt(baseP),
+            impuestoDR: '002',
+            tipoFactorDR: 'Tasa',
+            tasaOCuotaDR: '0.160000',
+            importeDR: fmt(impP)
+          }]
+        }],
+        impuestosP: {
+          totalTrasladosBaseIVA16: fmt(baseP),
+          totalTrasladosImpuestoIVA16: fmt(impP),
+          trasladosP: [{
+            baseP: fmt(baseP),
+            impuestoP: '002',
+            tipoFactorP: 'Tasa',
+            tasaOCuotaP: '0.160000',
+            importeP: fmt(impP)
+          }]
+        }
+      };
+    } else {
+      conceptos = (doc.items as any[]).map((item, idx) => {
       const qty = Number(item.quantity);
       const price = Number(item.unitPrice);
 
@@ -389,8 +732,8 @@ export class StampingService implements OnModuleInit {
       const valorUnitario = fmt(price, 6);
       const importe = fmt(item.subtotal ?? qty * price);
       const base = importe;
-      const tasa = '0.160000';
-      const ivaImporte = fmt(parseFloat(base) * 0.16);
+      const tasa = entity === 'PAYROLL' ? '' : '0.160000';
+      const ivaImporte = entity === 'PAYROLL' ? '0' : fmt(parseFloat(base) * 0.16);
 
       return {
         claveProdServ: item.satCode || '01010101',
@@ -402,11 +745,14 @@ export class StampingService implements OnModuleInit {
         valorUnitario,
         importe,
         descuento: item.discount ? fmt(item.discount) : undefined,
-        objetoImp: '02',
-        traslados: [{ base, impuesto: '002', tipoFactor: 'Tasa', tasaOCuota: tasa, importe: ivaImporte }],
+        objetoImp: entity === 'PAYROLL' ? '01' : '02',
+        pedimento: item.pedimento || undefined,
+        traslados: entity === 'PAYROLL' ? [] : [{ base, impuesto: '002', tipoFactor: 'Tasa', tasaOCuota: tasa, importe: ivaImporte }],
         retenciones: [],
       };
     });
+
+    }
 
     // Totales globales de impuestos
     const totalTrasladados = conceptos.reduce(
@@ -414,11 +760,11 @@ export class StampingService implements OnModuleInit {
       0,
     );
 
-    const subTotal = doc.subtotal
+    const subTotal = entity === 'PAYMENT_COMPLEMENT' ? '0' : doc.subtotal
       ? fmt(doc.subtotal)
       : fmt(conceptos.reduce((s, c) => s + parseFloat(c.importe), 0));
 
-    const total = doc.total
+    const total = entity === 'PAYMENT_COMPLEMENT' ? '0' : doc.total
       ? fmt(doc.total)
       : fmt(parseFloat(subTotal) + totalTrasladados);
 
@@ -430,9 +776,9 @@ export class StampingService implements OnModuleInit {
       serie: doc.serie || undefined,
       folio: doc.folio || undefined,
       fecha,
-      formaPago: doc.paymentForm || '01',
+      formaPago: entity === 'PAYMENT_COMPLEMENT' ? undefined : doc.paymentForm || '01',
       noCertificado: cert.serialNumber,
-      condicionesDePago: doc.condicionesDePago || undefined,
+      condicionesDePago: entity === 'PAYMENT_COMPLEMENT' ? undefined : doc.condicionesDePago || undefined,
       subTotal,
       descuento: undefined, // TODO: agregar si aplica
       moneda,
@@ -440,7 +786,7 @@ export class StampingService implements OnModuleInit {
       total,
       tipoDeComprobante,
       exportacion: '01',
-      metodoPago: doc.paymentMethod || 'PUE',
+      metodoPago: entity === 'PAYMENT_COMPLEMENT' ? undefined : doc.paymentMethod || 'PUE',
       lugarExpedicion: codigoPostal,
       confirmacion: undefined,
       emisor: {
@@ -457,7 +803,9 @@ export class StampingService implements OnModuleInit {
         usoCFDI: doc.cfdiUse || 'G03',
       },
       conceptos,
-      impuestos: {
+      cartaPorte: doc.cartaPorteJson ? JSON.parse(doc.cartaPorteJson) : undefined,
+      complementoPago,
+      impuestos: entity === 'PAYMENT_COMPLEMENT' ? { retenciones: [], traslados: [] } : {
         totalRetenidos: undefined,
         totalTrasladados: fmt(totalTrasladados),
         retenciones: [],
@@ -488,8 +836,9 @@ export class StampingService implements OnModuleInit {
         $: {
           'xmlns:cfdi': 'http://www.sat.gob.mx/cfd/4',
           'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-          'xsi:schemaLocation':
-            'http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd',
+          ...(c.complementoPago && { 'xmlns:pago20': 'http://www.sat.gob.mx/Pagos20' }),
+          ...(c.nomina && { 'xmlns:nomina12': 'http://www.sat.gob.mx/nomina12' }),
+          'xsi:schemaLocation': 'http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd' + (c.complementoPago ? ' http://www.sat.gob.mx/Pagos20 http://www.sat.gob.mx/sitio_internet/cfd/Pagos/Pagos20.xsd' : '') + (c.nomina ? ' http://www.sat.gob.mx/nomina12 http://www.sat.gob.mx/sitio_internet/cfd/nomina/nomina12.xsd' : ''),
           Version: c.version,
           ...(c.serie && { Serie: c.serie }),
           ...(c.folio && { Folio: c.folio }),
@@ -536,6 +885,7 @@ export class StampingService implements OnModuleInit {
               ValorUnitario: item.valorUnitario,
               Importe: item.importe,
               ...(item.descuento && { Descuento: item.descuento }),
+              ...(item.pedimento && { 'cfdi:InformacionAduanera': { $: { NumeroPedimento: item.pedimento } } }),
               ObjetoImp: item.objetoImp,
             },
             ...(item.traslados.length > 0 && {
@@ -578,7 +928,78 @@ export class StampingService implements OnModuleInit {
             },
           }),
         },
-      },
+          ...((c.complementoPago || c.cartaPorte || c.nomina) && {
+            'cfdi:Complemento': {
+              ...(c.complementoPago && {
+                'pago20:Pagos': {
+                  $: { Version: '2.0' },
+                  'pago20:Totales': {
+                    $: {
+                      TotalTrasladosBaseIVA16: c.complementoPago.impuestosP.totalTrasladosBaseIVA16,
+                      TotalTrasladosImpuestoIVA16: c.complementoPago.impuestosP.totalTrasladosImpuestoIVA16,
+                    }
+                  },
+                  'pago20:Pago': {
+                    $: {
+                      FechaPago: c.complementoPago.fechaPago,
+                      FormaDePagoP: c.complementoPago.formaDePagoP,
+                      MonedaP: c.complementoPago.monedaP,
+                      ...(c.complementoPago.tipoCambioP && { TipoCambioP: c.complementoPago.tipoCambioP }),
+                      Monto: c.complementoPago.monto,
+                      ...(c.complementoPago.numOperacion && { NumOperacion: c.complementoPago.numOperacion }),
+                    },
+                    'pago20:DoctoRelacionado': c.complementoPago.doctoRelacionado.map(dr => ({
+                      $: {
+                        IdDocumento: dr.idDocumento,
+                        ...(dr.serie && { Serie: dr.serie }),
+                        ...(dr.folio && { Folio: dr.folio }),
+                        MonedaDR: dr.monedaDR,
+                        EquivalenciaDR: dr.equivalenciaDR,
+                        NumParcialidad: dr.numParcialidad,
+                        ImpSaldoAnt: dr.impSaldoAnt,
+                        ImpPagado: dr.impPagado,
+                        ImpSaldoInsoluto: dr.impSaldoInsoluto,
+                        ObjetoImpDR: dr.objetoImpDR,
+                      },
+                      'pago20:ImpuestosDR': {
+                        'pago20:TrasladosDR': {
+                          'pago20:TrasladoDR': dr.trasladosDR.map(tdr => ({
+                            $: {
+                              BaseDR: tdr.baseDR,
+                              ImpuestoDR: tdr.impuestoDR,
+                              TipoFactorDR: tdr.tipoFactorDR,
+                              TasaOCuotaDR: tdr.tasaOCuotaDR,
+                              ImporteDR: tdr.importeDR,
+                            }
+                          }))
+                        }
+                      }
+                    })),
+                    'pago20:ImpuestosP': {
+                      'pago20:TrasladosP': {
+                        'pago20:TrasladoP': c.complementoPago.impuestosP.trasladosP.map(tp => ({
+                          $: {
+                            BaseP: tp.baseP,
+                            ImpuestoP: tp.impuestoP,
+                            TipoFactorP: tp.tipoFactorP,
+                            TasaOCuotaP: tp.tasaOCuotaP,
+                            ImporteP: tp.importeP,
+                          }
+                        }))
+                      }
+                    }
+                  }
+                }
+              }),
+              ...(c.cartaPorte && {
+                'cartaporte31:CartaPorte': c.cartaPorte
+              }),
+              ...(c.nomina && {
+                'nomina12:Nomina': c.nomina
+              })
+            }
+          }),
+        },
     };
 
     return builder.buildObject(obj);

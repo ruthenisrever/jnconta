@@ -44,14 +44,26 @@ export class CompaniesController {
         const payload = jwt.verify(auth.replace('Bearer ', ''), getJwtSecret()) as any;
         userId = payload.sub;
         
-        // Buscar el tenant de la empresa actual del usuario
-        if (payload.companyId) {
-          const userComp = await this.prisma.company.findUnique({ where: { id: payload.companyId } });
-          tenantId = userComp?.tenantId;
-        }
+        // Buscar el tenant a partir de la empresa del usuario en la base de datos
+        const dbUser = await this.prisma.user.findUnique({ where: { id: userId }, include: { company: true } });
+        tenantId = dbUser?.company?.tenantId;
       } catch (e) {
-        // Ignorar si el token es inválido, dejará tenantId como null
+        // Ignorar si el token es inválido
       }
+    }
+
+    // Validar el límite de 30 empresas para el tenant
+    if (tenantId) {
+      const companyCount = await this.prisma.company.count({ where: { tenantId } });
+      if (companyCount >= 30) {
+        throw new BadRequestException('Límite de empresas alcanzado (máximo 30 empresas). Para registrar más empresas, adquiere un plan adicional.');
+      }
+    }
+
+    // Verificar si el RFC ya existe
+    const existing = await this.prisma.company.findUnique({ where: { rfc: body.rfc } });
+    if (existing) {
+      throw new BadRequestException('Ya existe una empresa registrada con ese RFC.');
     }
 
     // Crear la nueva empresa

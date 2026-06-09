@@ -24,7 +24,7 @@ export default function EmpresasPage() {
   const fetchCompanies = async () => {
     setLoading(true);
     try {
-      const res = await apiFetch('/api/companies');
+      const res = await apiFetch('/api/auth/my-companies');
       const data = await res.json();
       setCompanies(data);
     } catch (e) {
@@ -65,7 +65,10 @@ export default function EmpresasPage() {
         router.push('/');
         setTimeout(() => window.location.reload(), 500);
       } else {
-        setErrorMsg(data.message || 'Error al crear la empresa');
+        let m = data.message;
+        if (Array.isArray(m)) m = m[0];
+        if (m === 'Internal server error') m = 'Error en el servidor al guardar la empresa.';
+        setErrorMsg(m || 'Error al crear la empresa');
       }
     } catch (e: any) {
       console.error('Error adding company:', e);

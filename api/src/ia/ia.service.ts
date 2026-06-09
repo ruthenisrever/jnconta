@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { SatService } from '../sat.service';
 
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
 
 // Respuestas fiscales precargadas para modo offline (cuando la API key está sin cuota)
 const OFFLINE_KB: { keywords: string[]; respuesta: string }[] = [
@@ -42,9 +42,8 @@ function offlineResponse(message: string): string | null {
     entry.keywords.some((kw) => lower.includes(kw)),
   );
   if (match) return match.respuesta;
-  return `**Modo Sin Conexión a IA** ⚡\n\nTu API Key de Google Gemini no tiene cuota disponible. Para activar la IA en tiempo real:\n1. Ve a [https://aistudio.google.com](https://aistudio.google.com) y genera una nueva API Key gratuita\n2. Actualiza \`GEMINI_API_KEY\` en el archivo \`/api/.env\`\n3. Reinicia el backend\n\nMientras tanto, puedo responder preguntas sobre: **ISR, IVA, IMSS, CFDI, DIOT, Depreciación, Nómina**. Prueba con alguno de esos temas.`;
+  return `**Modo Sin Conexión a IA** ⚡\n\nTu API Key de Claude no tiene cuota disponible o es inválida. Para activar la IA:\n1. Ve a [https://console.anthropic.com](https://console.anthropic.com)\n2. Saca tu llave y ponla en el .env como \`CLAUDE_API_KEY\`\n3. Reinicia el backend`;
 }
-
 
 @Injectable()
 export class IaService {
@@ -54,9 +53,8 @@ export class IaService {
   ) {}
 
   async respondToChat(companyId: string, history: any[], newMessage: string) {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.CLAUDE_API_KEY;
 
-    // Contexto de empresa en paralelo + NUEVA DATA ELITE
     const [company, employeesCount, bankBalResult, collectionResult, payablesResult, assetsCount, fiscalRisks] =
       await Promise.all([
         this.prisma.company.findUnique({ where: { id: companyId } }),
@@ -78,55 +76,47 @@ export class IaService {
       return { respuesta: offlineResponse(newMessage) ?? offlineResponse('') };
     }
 
-    const systemPrompt = `Eres Javier, el Asistente Contable Inteligente oficial de JnConta, especializado en normativa contable y fiscal mexicana (LISR 2024, IMSS, LIVA, CFF). Responde en español, con Markdown (tablas, negritas, listas).
-
-ESTADO ACTUAL (TIEMPO REAL):
-- Razón Social: ${company.name} (RFC: ${company.rfc})
-- Régimen Fiscal: ${company.regimenFiscal}
-- Saldo en Bancos: $${totalBankBalance.toFixed(2)} MXN
-- Empleados activos: ${employeesCount}
-- Cuentas por Cobrar (Vigentes): $${pendingCollection.toFixed(2)} MXN
-- Cuentas por Pagar (Pendientes): $${pendingPayments.toFixed(2)} MXN
-- Activos Fijos vigentes: ${assetsCount}
-- RIESGO FISCAL (EFOS/EDOS): ${fiscalRisks.length > 0 ? `⚠️ RIESGO DETECTADO (${fiscalRisks.length} operaciones sospechosas)` : 'SALUDABLE'}
-- INTEGRIDAD BITÁCORA: 100% (Bitácora Forense Activa)
-
-REGLAS: Eres proactivo. Si hay riesgo fiscal, asesora sobre el Art. 69-B. Si hay saldos bajos, sugiere revisar el simulador de impuestos. Usa tablas Markdown para comparativas.`;
+    const systemPrompt = `Eres Javier, el Asistente Contable Inteligente oficial de JnConta, especializado en normativa contable y fiscal mexicana (LISR 2024, IMSS, LIVA, CFF). Responde en español, con Markdown.\nESTADO ACTUAL:\n- Razón Social: ${company.name} (RFC: ${company.rfc})\n- Régimen Fiscal: ${company.regimenFiscal}\n- Saldo en Bancos: $${totalBankBalance.toFixed(2)} MXN\n- Empleados activos: ${employeesCount}\n- Cuentas por Cobrar: $${pendingCollection.toFixed(2)} MXN\n- Cuentas por Pagar: $${pendingPayments.toFixed(2)} MXN\n- Activos Fijos vigentes: ${assetsCount}\n- RIESGO FISCAL: ${fiscalRisks.length > 0 ? 'RIESGO DETECTADO' : 'SALUDABLE'}\n\nREGLAS: Eres proactivo. Usa tablas Markdown para comparativas.`;
 
     const requestBody = {
-      system_instruction: { parts: { text: systemPrompt } },
-      contents: [
+      model: 'claude-haiku-4-5',
+      max_tokens: 1024,
+      system: systemPrompt,
+      messages: [
         ...history.map((msg: any) => ({
-          role: msg.role === 'ai' ? 'model' : 'user',
-          parts: [{ text: msg.content }],
+          role: msg.role === 'ai' ? 'assistant' : 'user',
+          content: msg.content,
         })),
-        { role: 'user', parts: [{ text: newMessage }] },
+        { role: 'user', content: newMessage },
       ],
-      generationConfig: { temperature: 0.2 },
+      temperature: 0.2,
     };
 
-    const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+    const response = await fetch(CLAUDE_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
       body: JSON.stringify(requestBody),
     });
 
     const data = await response.json();
 
-    // Cuota agotada → fallback offline en lugar de error duro
     if (data.error) {
-      if (data.error.code === 429) {
+      if (data.error.type === 'invalid_request_error' || data.error.type === 'authentication_error') {
         const offline = offlineResponse(newMessage);
         return { respuesta: offline ?? offlineResponse('') };
       }
-      throw new Error('Error Gemini API: ' + data.error.message);
+      throw new Error('Error Claude API: ' + data.error.message);
     }
 
-    return { respuesta: data.candidates[0].content.parts[0].text };
+    return { respuesta: data.content[0].text };
   }
 
   async predictNextMonthTaxes(companyId: string) {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.CLAUDE_API_KEY;
     if (!apiKey) return { text: 'API Key no configurada.' };
 
     try {
@@ -139,38 +129,38 @@ REGLAS: Eres proactivo. Si hay riesgo fiscal, asesora sobre el Art. 69-B. Si hay
       const sumExpenses = billsResult._sum.total ?? 0;
 
       const prompt = `Analiza estos datos contables e identifica tendencia y proyección de pago provisional del siguiente mes (un párrafo). Ventas: $${sumIncome}, Gastos: $${sumExpenses}. IVA México 16%, ISR 30%. Sé directo.`;
-      const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+      
+      const response = await fetch(CLAUDE_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: 0.3 } }),
+        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+        body: JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 200, messages: [{ role: 'user', content: prompt }], temperature: 0.3 }),
       });
       const data = await response.json();
-      return { text: data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sin datos suficientes.' };
+      return { text: data.content?.[0]?.text || 'Sin datos suficientes.' };
     } catch {
       return { text: 'Proyección temporalmente inactiva.' };
     }
   }
 
   async auditAnomalies(companyId: string) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) return { anomalies: [{ severity: 'baja', message: 'IA desactivada: configura GEMINI_API_KEY.' }] };
+    const apiKey = process.env.CLAUDE_API_KEY;
+    if (!apiKey) return { anomalies: [{ severity: 'baja', message: 'IA desactivada: configura CLAUDE_API_KEY.' }] };
 
     try {
       const logs = await this.prisma.auditLog.findMany({
-        where: { companyId },
-        take: 10,
-        orderBy: { createdAt: 'desc' },
+        where: { companyId }, take: 10, orderBy: { createdAt: 'desc' },
       });
       const logsText = JSON.stringify(logs.map((l: any) => ({ a: l.action, e: l.entity, d: l.createdAt })));
-      const prompt = `Revisa estos 10 logs y detecta anomalías o movimientos fuera de horario laboral México. Responde JSON: [{"severity":"alta|media|baja","message":"observación"}]. Logs: ${logsText}`;
-      const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+      const prompt = `Revisa estos 10 logs y detecta anomalías o movimientos fuera de horario laboral México. Responde JSON EXACTO (sin \`\`\`json): [{"severity":"alta|media|baja","message":"observación"}]. Logs: ${logsText}`;
+      
+      const response = await fetch(CLAUDE_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: 0.8 } }),
+        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+        body: JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 500, messages: [{ role: 'user', content: prompt }], temperature: 0.8 }),
       });
       const data = await response.json();
       if (data.error) throw new Error(data.error.message);
-      let resText = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+      let resText = data.content?.[0]?.text || '[]';
       resText = resText.replace(/```json/g, '').replace(/```/g, '').trim();
       return { anomalies: JSON.parse(resText) };
     } catch {

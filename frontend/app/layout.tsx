@@ -25,7 +25,7 @@ type NavItem = { href: string; icon: any; label: string; feature?: keyof Omit<Pl
 type NavSection = { title: string; items: NavItem[] };
 
 const navSections: NavSection[] = [
-  { title: 'Inteligencia Artificial', items: [{ href: '/ia', icon: Database, label: 'Javier IA', feature: 'ai' }] },
+  { title: 'Inteligencia Artificial', items: [{ href: '/ia', icon: Database, label: 'Javy IA', feature: 'ai' }] },
   { title: 'Principal', items: [{ href: '/', icon: LayoutDashboard, label: 'Dashboard' }] },
   { title: 'Contabilidad', items: [
     { href: '/contabilidad', icon: BookOpen, label: 'Pólizas', feature: 'accounting' },
@@ -257,13 +257,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <span className="text-[10px] text-primary-400 font-bold uppercase tracking-tighter">Entidad Activa</span>
                   <span className="text-xs font-bold text-white truncate max-w-[180px]">{companyInfo?.name || 'Cargando...'}</span>
                </div>
-               {companies.length > 1 && (
+               {companies.length > 0 && (
                  <button
                    onClick={() => router.push('/select-company')}
                    title="Cambiar empresa"
-                   style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'var(--text-muted)', flexShrink: 0 }}
+                   className="mt-2 w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 text-cyan-400 font-bold text-xs transition-all"
                  >
-                   <ChevronsRight size={16} style={{ color: '#06b6d4' }} />
+                   Cambiar Empresa <ChevronsRight size={14} />
                  </button>
                )}
             </div>

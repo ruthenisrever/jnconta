@@ -76,7 +76,7 @@ export class AuthController {
     const { name, email, password, companyName, rfc } = body;
 
     if (!name?.trim()) throw new BadRequestException('El nombre es requerido.');
-    if (!email?.trim()) throw new BadRequestException('El email es requerido.');
+    if (!email?.trim() || !email.includes('@')) throw new BadRequestException('El correo electrónico no es válido.');
     if (!password || password.length < 8) throw new BadRequestException('La contraseña debe tener al menos 8 caracteres.');
     if (!companyName?.trim()) throw new BadRequestException('El nombre de la empresa es requerido.');
 
@@ -171,8 +171,11 @@ export class AuthController {
   async myCompanies(@Headers('authorization') auth: string) {
     const payload = this.verifyToken(auth);
 
-    // Empresa principal del usuario
-    const primary = await this.prisma.company.findUnique({ where: { id: payload.companyId } });
+    // Obtener el usuario de la base de datos para saber su empresa principal original
+    const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+    if (!user) throw new UnauthorizedException('Usuario no encontrado');
+
+    const primary = await this.prisma.company.findUnique({ where: { id: user.companyId } });
 
     // Empresas adicionales asignadas (join table)
     const extra = await (this.prisma as any).userCompany.findMany({
@@ -198,8 +201,11 @@ export class AuthController {
     const { companyId } = body;
     if (!companyId) throw new BadRequestException('companyId requerido');
 
-    // Verificar acceso: empresa principal o asignada por UserCompany
-    const isPrimary = payload.companyId === companyId;
+    const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
+    if (!user) throw new UnauthorizedException('Usuario no encontrado');
+
+    // Verificar acceso: empresa principal en base de datos o asignada por UserCompany
+    const isPrimary = user.companyId === companyId;
     const isAssigned = !isPrimary && await (this.prisma as any).userCompany.findUnique({
       where: { userId_companyId: { userId: payload.sub, companyId } },
     });

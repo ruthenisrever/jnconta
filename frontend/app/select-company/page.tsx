@@ -95,10 +95,12 @@ export default function SelectCompanyPage() {
               border: 'var(--unified-block-border)',
             }}>
               <Building2 size={40} style={{ color: 'var(--text-muted)', marginBottom: 12 }} />
-              <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: 14 }}>
+              <div style={{ color: 'var(--text-muted)', margin: 0, fontSize: 14 }}>
                 No tienes empresas asignadas.<br />
-                <a href="/register" style={{ color: 'var(--primary-400)' }}>Crea una nueva empresa</a>
-              </p>
+                <button onClick={() => router.push('/empresas')} style={{ background: 'none', border: 'none', color: 'var(--primary-400)', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
+                  Crea una nueva empresa
+                </button>
+              </div>
             </div>
           ) : (
             companies.map(company => {
@@ -163,7 +165,7 @@ export default function SelectCompanyPage() {
           borderRadius: 12, cursor: 'pointer', color: 'var(--text-muted)',
           fontSize: 13, fontWeight: 600, transition: 'all 0.15s ease',
         }}
-          onClick={() => router.push('/configuracion/empresa/nueva')}
+          onClick={() => router.push('/empresas')}
           onMouseEnter={e => { (e.currentTarget as any).style.borderColor = 'rgba(6,182,212,0.3)'; (e.currentTarget as any).style.color = '#06b6d4'; }}
           onMouseLeave={e => { (e.currentTarget as any).style.borderColor = 'rgba(255,255,255,0.1)'; (e.currentTarget as any).style.color = 'var(--text-muted)'; }}
         >
