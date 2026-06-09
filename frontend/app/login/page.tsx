@@ -4,7 +4,15 @@ import { Lock, Mail, Eye, EyeOff, LogIn } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005';
+const getApiUrl = () => {
+  if (typeof window !== 'undefined') {
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    return isLocal ? 'http://localhost:3005' : '';
+  }
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005';
+};
+
+const API = getApiUrl();
 
 export default function LoginPage() {
   const [email, setEmail] = useState('admin@jnconta.com');

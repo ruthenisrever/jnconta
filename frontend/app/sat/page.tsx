@@ -5,7 +5,7 @@ import {
   FileText, Database, Layers, FileCode, Info, Loader2, Eye,
   CheckCircle2, AlertTriangle
 } from 'lucide-react';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, API_BASE } from '@/lib/api';
 
 type Tab = 'coe' | 'diot';
 
@@ -29,7 +29,7 @@ export default function SatPage() {
   const cid = () => localStorage.getItem('companyId') || '';
 
   const handleDownloadCoe = (endpoint: string) => {
-    const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005'}/api/sat-exports/${endpoint}?companyId=${cid()}&year=${year}&month=${month}${endpoint === 'balanza' ? `&type=${type}` : ''}`;
+    const url = `${API_BASE}/api/sat-exports/${endpoint}?companyId=${cid()}&year=${year}&month=${month}${endpoint === 'balanza' ? `&type=${type}` : ''}`;
     setLoading(true);
     window.location.href = url;
     setTimeout(() => setLoading(false), 2500);
@@ -52,7 +52,7 @@ export default function SatPage() {
   };
 
   const handleDownloadDiot = () => {
-    const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005'}/api/diot/export?companyId=${cid()}&month=${parseInt(month)}&year=${year}`;
+    const url = `${API_BASE}/api/diot/export?companyId=${cid()}&month=${parseInt(month)}&year=${year}`;
     setLoading(true);
     window.location.href = url;
     setTimeout(() => setLoading(false), 2500);

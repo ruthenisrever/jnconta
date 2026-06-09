@@ -4,7 +4,7 @@ import {
   Download, FileText, RefreshCw, AlertCircle,
   Settings
 } from 'lucide-react';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, API_BASE } from '@/lib/api';
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
 interface DiotRow {
@@ -48,8 +48,7 @@ export default function DiotPage() {
     setExporting(true);
     try {
       const cid = getCompanyId();
-      const base = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005';
-      window.location.href = `${base}/api/diot/export?companyId=${cid}&month=${month}&year=${year}`;
+      window.location.href = `${API_BASE}/api/diot/export?companyId=${cid}&month=${month}&year=${year}`;
     } catch (e) {
       alert('Error al exportar DIOT');
     }

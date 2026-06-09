@@ -6,11 +6,11 @@ import {
   AlertTriangle, FileCode, Archive, 
   Calendar, ShieldCheck, Box, Zap
 } from 'lucide-react';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, API_BASE } from '@/lib/api';
 
 export default function SatExportsPage() {
   const [year, setYear] = useState(new Date().getFullYear().toString());
-  const [month, setMonth] = useState((new Date().getMonth() + 1).toString());
+  const [month, setMonth] = useState((new Date().getMonth() + 1).toString().padStart(2, '0'));
   const [type, setType] = useState('N'); // N=Normal, C=Complementaria, Z=Cierre
   const [solicitud, setSolicitud] = useState('AF'); // AF, FC, DE, CO
 
@@ -21,7 +21,7 @@ export default function SatExportsPage() {
     if (endpoint === 'balanza') url += `&type=${type}`;
     if (endpoint === 'polizas') url += `&typeSolicitud=${solicitud}`;
 
-    window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005'}${url}`, '_blank');
+    window.open(`${API_BASE}${url}`, '_blank');
   };
 
   const months = [
