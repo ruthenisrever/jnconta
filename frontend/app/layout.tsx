@@ -391,8 +391,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
                   <div className="h-4 w-px bg-white/10" />
                   <div className="flex flex-col items-end">
-                     <span className="text-[10px] text-muted font-bold uppercase">{user?.role || 'usuario'}</span>
-                     <span className="text-xs font-bold text-white">{user?.name || 'Administrador'}</span>
+                     <span className="text-xs font-bold text-white">{user?.name || 'Usuario'}</span>
+                     <span className="text-[10px] text-muted font-bold uppercase">
+                        {user?.role === 'admin' ? 'Administrador' : (user?.role === 'accountant' ? 'Contador' : 'Usuario')}
+                     </span>
                   </div>
                   <div className="w-10 h-10 rounded-full bg-primary-600/30 border border-primary-500/50 flex items-center justify-center font-bold text-primary-300">
                      {user?.name?.[0] || 'A'}
