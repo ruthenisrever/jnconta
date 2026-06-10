@@ -390,10 +390,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   )}
 
                   <div className="h-4 w-px bg-white/10" />
-                  <div className="flex flex-col items-end">
-                     <span className="text-xs font-bold text-white">{user?.name || 'Usuario'}</span>
-                     <span className="text-[10px] text-muted font-bold uppercase">
-                        {user?.role === 'admin' ? 'Administrador' : (user?.role === 'accountant' ? 'Contador' : 'Usuario')}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', lineHeight: '1.2' }}>
+                     <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                        {user?.name || 'Usuario'}
+                     </span>
+                     <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '2px' }}>
+                        {user?.role === 'admin' ? 'Usuario' : (user?.role === 'accountant' ? 'Contador' : 'Usuario')}
                      </span>
                   </div>
                   <div className="w-10 h-10 rounded-full bg-primary-600/30 border border-primary-500/50 flex items-center justify-center font-bold text-primary-300">
